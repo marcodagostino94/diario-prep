@@ -24,13 +24,14 @@ export function validateBackup(value){
  if(!value||value.format!=='diario-prep'||value.version!==1||!Array.isArray(value.events)||value.events.length>100000)throw Error('File di backup non compatibile.');
  const ids=new Set();const events=value.events.map(e=>{
  if(!e||!['dose','sex'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||e.at>Date.now()+60000)throw Error('Il backup contiene eventi non validi.');
- ids.add(e.id);if(e.type==='dose'&&(![1,2].includes(e.count)||typeof e.start!=='boolean'||(e.start&&e.count!==2)))throw Error('Dose non valida nel backup.');
+ ids.add(e.id);if(e.type==='dose'&&(![1,2].includes(e.count)||typeof e.start!=='boolean'||(e.start&&e.count!==2)||(!e.start&&e.count!==1)))throw Error('Dose non valida nel backup.');
  return e.type==='dose'?{id:e.id,type:e.type,at:e.at,count:e.count,start:e.start}:{id:e.id,type:e.type,at:e.at};});
  const s=value.settings||{};return {events,settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30}};
 }
 export function reminderPlan(a,settings,now=Date.now()){
  if(!a.next)return [];
  const base=a.next, out=[];
+ if(base+HOUR<now)out.push({key:'overdue-'+base,at:now+60000});
  if(settings.early&&base-2*HOUR>now)out.push({key:'early-'+base,at:base-2*HOUR});
  // Finite reminders; never infer that a dose was taken from silence.
  for(let i=0;i<=(settings.repeat?4:0);i++){const at=base+i*15*60000;if(at>now)out.push({key:'due-'+base+'-'+i,at});}
