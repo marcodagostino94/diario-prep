@@ -72,3 +72,20 @@ Comportamento richiesto dall'utente, da implementare coerentemente con il suo sc
 ## Punto già segnalato e rinviato
 
 - **Notifiche discrete:** l'utente ha confermato che le notifiche arrivano, ma il risultato non è discreto nonostante l'interruttore attivo. Verificare testo, titolo, icona e nome dell'app mostrati da iPhone. Nessuna correzione è stata ancora richiesta per questo intervento di sola raccolta.
+
+## Ottimizzazione iPhone e larghezza delle schermate
+
+- Ottimizzare l'app per iPhone in tutte le schermate, comprese finestre di inserimento/modifica, impostazioni e viste dello Storico.
+- Eliminare ogni scorrimento orizzontale: contenuti, testi, pulsanti e griglie devono rientrare nella larghezza disponibile senza tagli.
+- Verificare anche le schermate che attualmente presentano questo problema, con testi lunghi, note, controlli data/ora e tastiera aperta.
+- La soluzione deve correggere le cause dell'overflow, senza limitarsi a nascondere contenuti fuori schermo.
+
+## Storico: scelta tra elenco e calendario
+
+- Aggiungere nello Storico un pulsante o selettore per cambiare visualizzazione tra **Elenco** e **Calendario**.
+- Conservare la visualizzazione a elenco già prevista, con gli altri miglioramenti richiesti.
+- Aggiungere una visualizzazione a calendario, con griglia di riquadri per le giornate.
+- In ogni riquadro mostrare il numero del giorno e **soltanto i simboli degli eventi**, senza descrizioni testuali degli eventi nella cella.
+- Mantenere riconoscibili i simboli di una/due compresse, rapporti, copertura prevista, dosi pianificate e appuntamenti sanitari, quando presenti.
+- Progettare la griglia per la larghezza dell'iPhone, senza scorrimento orizzontale; definire i dettagli di navigazione e apertura del giorno durante l'implementazione.
+- Le due viste rappresentano gli stessi dati; cambiare visualizzazione non modifica né elimina registrazioni.
