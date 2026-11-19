@@ -1,0 +1,4 @@
+project_id = "tzgiywfhrxjdfgrhfwyb"
+[functions.reminders]
+# Gateway JWT verification remains enabled; per-device authorization is checked inside the function.
+verify_jwt = true

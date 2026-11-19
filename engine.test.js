@@ -1,0 +1,12 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {analyze,DAY,HOUR,validateBackup,reminderPlan} from './engine.js';
+const t=Date.UTC(2026,10,19,20);let id=0;const dose=(h,start=false)=>({id:String(++id),type:'dose',at:t+h*HOUR,count:start?2:1,start}),sex=h=>({id:String(++id),type:'sex',at:t+h*HOUR});const run=(events,h)=>analyze({events},t+h*HOUR);
+test('2-1-1 before first daily dose completes after second daily dose',()=>{const a=run([dose(0,true),sex(23),dose(24),dose(48)],48);assert.equal(a.kind,'complete');assert.equal(a.next,null)});
+test('sex after 24-hour dose requires another daily dose',()=>{const a=run([dose(0,true),dose(24),sex(26.5),dose(48)],48);assert.equal(a.remaining,1);assert.equal(a.next,t+72*HOUR)});
+test('Friday late and Saturday morning sex complete Sunday',()=>{const a=run([dose(0,true),dose(24),sex(26.5),sex(36),dose(48),dose(72)],72);assert.equal(a.remaining,0);assert.equal(a.kind,'complete')});
+test('new sex after completed cycle reopens continuation',()=>{const a=run([dose(0,true),sex(3),dose(24),dose(48),sex(67),dose(72)],72);assert.equal(a.remaining,1);assert.equal(a.next,t+96*HOUR)});
+test('missing and late doses require review',()=>{assert.equal(run([dose(0,true),sex(3),dose(48)],48).kind,'review');assert.equal(run([dose(0,true),sex(3)],28).kind,'review')});
+test('sex before two-hour loading wait requires review',()=>assert.equal(run([dose(0,true),sex(1)],3).kind,'review'));
+test('duplicate dose slot cannot silently complete cycle',()=>assert.equal(run([dose(0,true),sex(3),dose(23),dose(25)],25).kind,'review'));
+test('future backup events and duplicate ids rejected',()=>{assert.throws(()=>validateBackup({format:'diario-prep',version:1,events:[{...sex(1),at:Date.now()+DAY}]}));const e=dose(0,true);assert.throws(()=>validateBackup({format:'diario-prep',version:1,events:[e,e]}))});
+test('backup sanitizes unexpected properties',()=>{const x=validateBackup({format:'diario-prep',version:1,events:[],settings:{evil:'x'}});assert.equal(x.settings.evil,undefined)});
+test('reminders carry only times and keys; completion clears plan',()=>{assert.deepEqual(reminderPlan(run([dose(0,true),sex(3),dose(24),dose(48)],48),{},t+48*HOUR),[]);const p=reminderPlan(run([dose(0,true)],1),{repeat:true,early:true},t+HOUR);assert.equal(p.length,7);assert.ok(p.every(e=>Object.keys(e).sort().join(',')==='at,key'))});
