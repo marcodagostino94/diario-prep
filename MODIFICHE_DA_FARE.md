@@ -89,3 +89,19 @@ Comportamento richiesto dall'utente, da implementare coerentemente con il suo sc
 - Mantenere riconoscibili i simboli di una/due compresse, rapporti, copertura prevista, dosi pianificate e appuntamenti sanitari, quando presenti.
 - Progettare la griglia per la larghezza dell'iPhone, senza scorrimento orizzontale; definire i dettagli di navigazione e apertura del giorno durante l'implementazione.
 - Le due viste rappresentano gli stessi dati; cambiare visualizzazione non modifica né elimina registrazioni.
+
+## Notifiche: attivazione senza codice
+
+- Eliminare il campo e la richiesta del **codice di abbinamento** dal flusso utente.
+- L'utente preme soltanto **Attiva notifiche** e, quando richiesto da iPhone, concede il permesso del sistema.
+- Gestire automaticamente registrazione del dispositivo e abbinamento al servizio, senza richiedere credenziali o codici da copiare.
+- In fase di implementazione adeguare l'autorizzazione e le protezioni del servizio notifiche; non limitarsi a togliere il controllo del codice sul server.
+- Preservare le attivazioni già esistenti e mostrare chiaramente eventuali permessi negati o problemi di connessione.
+
+## Tema chiaro e scuro automatico
+
+- Conservare l'attuale tema scuro.
+- Aggiungere un tema chiaro completo per tutte le schermate, finestre e controlli.
+- Cambiare automaticamente tema in base all'orario: **chiaro di giorno/mattina, scuro la sera/notte**, usando l'ora locale del dispositivo.
+- Definire successivamente gli orari esatti del passaggio; la richiesta riguarda l'orario, non soltanto il tema di sistema dell'iPhone.
+- Assicurare contrasto e leggibilità in entrambi i temi, mantenendo riconoscibili i colori degli stati e delle linee dello Storico.
