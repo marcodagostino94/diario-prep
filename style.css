@@ -237,3 +237,22 @@ body[data-view=home] .status-card .shield-orb{border:0;background:none;box-shado
 .post-sex-pill.is-taken{color:var(--muted)}
 .post-sex-pill>.taken-cross{position:absolute;inset:5px;width:26px;height:26px;fill:none;stroke:#f04455;stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 1px var(--card))}
 @media(max-width:650px){.post-sex-pills{right:12px;gap:7px}.post-sex-pill{width:33px;height:33px}.post-sex-pill>svg{width:21px;height:21px}.post-sex-pill>.taken-cross{inset:4px;width:24px;height:24px}.next-card.has-pill-tracker>.countdown,.next-card.has-pill-tracker>.next-title,.next-card.has-pill-tracker>.tiny{padding-right:85px}}
+
+/* History icons share the exact paths used by the dashboard captions. */
+body[data-view=history] .timeline .event-icon{background:transparent;border:0!important;border-radius:50%;padding:0;display:grid;place-items:center}
+.history-badge{--history-ink:var(--green);--history-tint:rgba(32,185,105,.14);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:34px;height:34px;border-radius:50%;color:var(--history-ink);background:var(--history-tint);background:color-mix(in srgb,var(--history-ink) 13%,var(--card));border:1px solid color-mix(in srgb,var(--history-ink) 23%,transparent)}
+.history-badge>svg{width:21px;height:21px;flex-shrink:0}
+.history-badge.history-double>svg{width:14px;height:21px}
+.history-planned,.history-analysis{--history-ink:var(--sky);--history-tint:rgba(40,163,235,.14)}
+.history-sex{--history-ink:#e64c7c;--history-tint:rgba(230,76,124,.14)}
+.history-visit{--history-ink:#ec5d9b;--history-tint:rgba(236,93,155,.14)}
+.history-screening{--history-ink:#ac79ef;--history-tint:rgba(172,121,239,.14)}
+.history-bottle{--history-ink:#dba725;--history-tint:rgba(219,167,37,.14)}
+:root[data-theme=light] .history-screening{--history-ink:#7624cd}
+:root[data-theme=light] .history-bottle{--history-ink:#9b7000}
+.history-shield{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center}
+.history-shield img{display:block;width:100%;height:100%;object-fit:contain}
+body[data-view=history] .timeline .event.coverage.coverage-started strong{color:var(--green)}
+.calendar-symbols .history-badge,.calendar-symbols .history-shield{width:23px;height:23px}
+.calendar-symbols .history-badge>svg{width:15px;height:15px}
+.calendar-symbols .history-double>svg{width:9px;height:14px}

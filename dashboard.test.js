@@ -13,7 +13,7 @@ test('six independent summary buttons keep the original handlers in the approved
 test('art and presentation files are included in offline cache; no full-card raster is used',()=>{
  const sw=readFileSync(new URL('./sw.js',import.meta.url),'utf8');
  for(const [,art] of DASHBOARD_ACTIONS)assert.ok(sw.includes(`assets/dashboard/${art}.png`));
- assert.ok(sw.includes('dashboard.css?v=1.16.3'));assert.ok(sw.includes('dashboard.js?v=1.16.3'));
+ assert.ok(sw.includes('dashboard.css?v=1.16.5'));assert.ok(sw.includes('dashboard.js?v=1.16.5'));
  assert.ok(!dashboardButtons().includes('riferimento_dashboard'));
 });
 
