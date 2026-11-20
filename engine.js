@@ -1,4 +1,4 @@
-import {normalizeRoutine,VACCINES,normalizePastDiseases} from './health.js?v=1.15.2';
+import {normalizeRoutine,VACCINES,normalizePastDiseases} from './health.js?v=1.16.2';
 export const SCREENING_GROUPS=[
  ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C'],['hbv','Epatite B']]],
  ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),
@@ -7,6 +7,8 @@ export const SCREENING_GROUPS=[
 export const RESULT_STATES=['untested','negative','positive'];
 export function normalizeScreening(value={}){const out={};for(const [,tests] of SCREENING_GROUPS)for(const [key] of tests){const state=value?.[key];out[key]=RESULT_STATES.includes(state)?state:'untested';}return out;}
 export const HOUR=3600000, DAY=24*HOUR;
+// Conservative app policy for the standard 2-1-1 flow, not a biological cutoff.
+export const CONTINUATION_LIMIT=25*HOUR;
 export function analyze(data,now=Date.now()) {
  const doses=data.events.filter(e=>e.type==='dose').sort((a,b)=>a.at-b.at);
  const changes=data.events.filter(e=>e.type==='scheme'&&e.at<=now).sort((a,b)=>a.at-b.at);
@@ -20,6 +22,9 @@ export function analyze(data,now=Date.now()) {
  const relevant=d=>d.at>=boundary;
  const slots=new Map();
  for(const d of ds){const slot=Math.round((d.at-start.at)/DAY);if(slots.has(slot)&&relevant(d))issues.push('Più assunzioni nella stessa giornata di schema: verifica le registrazioni.');slots.set(slot,d);if(relevant(d)&&Math.abs(d.at-(start.at+slot*DAY))>2*HOUR)issues.push('Un’assunzione si discosta di oltre 2 ore dall’orario previsto: verifica lo schema con il centro PrEP.');}
+ // A standalone tablet cannot silently bridge an interruption in the standard flow.
+ // Evaluate actual timestamps even for backdated records and when no sex was logged.
+ if(mode==='demand')for(let i=1;i<ds.length;i++)if(relevant(ds[i])&&ds[i].at-ds[i-1].at>=CONTINUATION_LIMIT)issues.push('Assunzione singola dopo un’interruzione di almeno 25 ore: verifica lo schema con il centro PrEP.');
  const last=ds.at(-1), lastSlot=Math.max(...slots.keys());
  for(let i=Math.max(0,Math.ceil((boundary-start.at)/DAY));i<=lastSlot;i++)if(!slots.has(i)&&(mode==='daily'||sex.some(x=>x.at<start.at+i*DAY&&x.at>=boundary)))issues.push('Risulta una dose giornaliera non registrata.');
  for(const x of sex.filter(x=>mode!=='daily'&&x.at>=boundary)){if(x.at<start.at+2*HOUR)issues.push('Un rapporto è registrato prima delle 2 ore dalla dose iniziale.');if(!ds.some(d=>d.at<=x.at&&x.at-d.at<=DAY))issues.push('Un rapporto richiede verifica rispetto alle dosi precedenti.');}
@@ -28,13 +33,13 @@ export function analyze(data,now=Date.now()) {
  const remaining=mode==='daily'?1:lastSex?Math.max(0,2-after):0;
  const next=start.at+(lastSlot+1)*DAY;
  const completed=mode!=='daily'&&!!lastSex&&remaining===0;
- if((mode==='daily'||lastSex)&&!completed&&now>next+2*HOUR)issues.push('La prossima dose risulta in ritardo o non registrata.');
+ if((mode==='daily'||lastSex)&&!completed&&(mode==='daily'?now>next+2*HOUR:now>=last.at+CONTINUATION_LIMIT))issues.push('La prossima dose risulta in ritardo o non registrata.');
  for(const e of data.events.filter(e=>e.type==='anomaly'&&e.source?.startsWith(start.id+':')))issues.push(e.message);
  const unique=[...new Set(issues)];
  const requiredNext=!unique.length&&(mode==='daily'||lastSex&&!completed)?next:null;
- const continuationAt=mode==='demand'&&!unique.length&&!requiredNext&&now<=last.at+DAY+HOUR?last.at+DAY:null;
+ const continuationAt=mode==='demand'&&!unique.length&&!requiredNext&&now<last.at+CONTINUATION_LIMIT?last.at+DAY:null;
  const kind=unique.length?'review':completed?'complete':now<start.at+2*HOUR?'waiting':mode!=='daily'&&!lastSex&&now>last.at+DAY?'unreported':'active';
- return {kind,mode,remaining,next:requiredNext,continuationAt,scheduledNext:next,canContinue:now<=last.at+DAY+(mode==='demand'&&(!lastSex||completed)?HOUR:0),due:!!(requiredNext||continuationAt)&&now>=(requiredNext||continuationAt),start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
+ return {kind,mode,remaining,next:requiredNext,continuationAt,scheduledNext:next,canContinue:mode==='demand'?!unique.length&&now<last.at+CONTINUATION_LIMIT:now<=last.at+DAY,due:!!(requiredNext||continuationAt)&&now>=(requiredNext||continuationAt),start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
 }
 export function validateBackup(value){
  if(!value||value.format!=='diario-prep'||![1,2].includes(value.version)||!Array.isArray(value.events)||value.events.length>100000)throw Error('File di backup non compatibile.');

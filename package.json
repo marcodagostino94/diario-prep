@@ -1,1 +1,1 @@
-{"name":"diario-prep","version":"1.15.2","private":true,"type":"module","scripts":{"test":"node --test *.test.js","start":"python3 -m http.server 4173 --bind 127.0.0.1"}}
+{"name":"diario-prep","version":"1.16.2","private":true,"type":"module","scripts":{"test":"node --test *.test.js","start":"python3 -m http.server 4173 --bind 127.0.0.1"}}
