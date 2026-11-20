@@ -37,3 +37,9 @@ Il cambio schema è un evento con decorrenza immediata; conserva il passato e l�
 Backup v2 compatibile in lettura con v1. IndexedDB e identità PWA invariati. Nessuna migrazione del diario verso Supabase. La modalità discreta usa titolo e testo generici e omette l’icona personalizzata dalla notifica; il nome/icona dell’app installata mostrati da iOS dipendono dal sistema.
 
 Riferimento aggiuntivo: BASHH/BHIVA 2025 con chiarimenti settembre 2026, https://bhiva.org/clinical-guideline/PrEP-guidelines/. Le istruzioni personali del centro restano il riferimento per avvio, passaggi e dosi dimenticate.
+
+## Versione 1.4
+
+Compresse rappresentate da badge circolari rosa/rossi individuali (due badge per due compresse). Storico senza azioni di inserimento duplicate. Salute distingue Nuovi esiti analisi, Appuntamento analisi (siringa) e Appuntamento visita (medico). Gli esiti sono un evento locale distinto con stati espliciti non testato/negativo/positivo per ciascun esame e sede; nessun risultato viene dedotto o interpretato automaticamente. Esiti e note sono inclusi nel backup v2.
+
+Le anomalie vengono riconciliate con le registrazioni originali al salvataggio e all’apertura: gli avvisi risolti da correzioni vengono eliminati anche dai calendari e dai cicli passati. Un nuovo ciclo o cambio schema non nasconde da solo un’anomalia ancora effettiva. Gli appuntamenti e gli esiti precedenti sono conservati.

@@ -1,3 +1,10 @@
+export const SCREENING_GROUPS=[
+ ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C']]],
+ ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),
+ ['Altri test',[['hav','Epatite A'],['hbv','Epatite B'],['hsv1','Herpes HSV-1'],['hsv2','Herpes HSV-2'],['trichomonas','Tricomoniasi']]]
+];
+export const RESULT_STATES=['untested','negative','positive'];
+export function normalizeScreening(value={}){const out={};for(const [,tests] of SCREENING_GROUPS)for(const [key] of tests){const state=value?.[key];out[key]=RESULT_STATES.includes(state)?state:'untested';}return out;}
 export const HOUR=3600000, DAY=24*HOUR;
 export function analyze(data,now=Date.now()) {
  const doses=data.events.filter(e=>e.type==='dose').sort((a,b)=>a.at-b.at);
@@ -37,18 +44,28 @@ export function validateBackup(value){
   if(e.type==='sex')return {...base,notes:text(e.notes)};
   if(e.type==='scheme'){if(!['daily','demand'].includes(e.mode))throw Error('Schema non valido.');return {...base,mode:e.mode};}
   if(e.type==='anomaly')return {...base,message:text(e.message),source:text(e.source,200)};
-  if(!['analysis','visit'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
-  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes)};
+  if(!['analysis','visit','screening'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
+  if(e.category==='screening'&&e.at>now+60000)throw Error('Data degli esiti non valida.');
+  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening)}:{})};
  });
  const s=value.settings||{};
  return {events,settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30,theme:['auto','dark','light'].includes(s.theme)?s.theme:'auto',historyView:s.historyView==='calendar'?'calendar':'list'}};
 }
-// Persist observations independently of later edits or a fresh cycle.
+// Re-evaluate the source records, including closed cycles and earlier scheme periods.
+// A new cycle alone cannot hide a genuine historical issue; corrected records can resolve it.
 export function captureIssues(data,now=Date.now()){
- const a=analyze(data,now);if(!a.issues.length)return data;
- const events=[...data.events];
- for(const message of a.issues){const source=`${a.start.id}:${message}`;if(!events.some(e=>e.type==='anomaly'&&e.source===source))events.push({id:'anomaly-'+crypto.randomUUID(),type:'anomaly',at:now,message,source});}
- return events.length===data.events.length?data:{...data,events};
+ const records=data.events.filter(e=>e.type!=='anomaly');
+ const boundaries=[...new Set(records.filter(e=>e.at<=now&&(e.type==='scheme'||e.type==='dose'&&e.start)).map(e=>e.at))].sort((a,b)=>a-b);
+ const required=new Map();
+ for(let i=0;i<boundaries.length;i++){
+  const cutoff=i+1<boundaries.length?boundaries[i+1]-1:now;
+  const a=analyze({events:records.filter(e=>e.at<=cutoff)},cutoff);
+  for(const message of a.issues){const source=`${a.start.id}:${message}`;required.set(source,{message,source,at:cutoff});}
+ }
+ const previous=data.events.filter(e=>e.type==='anomaly');
+ const anomalies=[...required.values()].map(issue=>previous.find(e=>e.source===issue.source)||{id:'anomaly-'+crypto.randomUUID(),type:'anomaly',...issue});
+ if(previous.length===anomalies.length&&anomalies.every(e=>previous.includes(e)))return data;
+ return {...data,events:[...records,...anomalies]};
 }
 export function themeAt(setting,now=new Date()){return setting==='light'||setting==='dark'?setting:now.getHours()>=7&&now.getHours()<19?'light':'dark';}
 // Derived schedule only: never writes or counts planned doses as taken.
