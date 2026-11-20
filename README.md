@@ -121,3 +121,7 @@ Verifica: test logici di fitting su viewport 375×812, 390×844, 430×932, fines
 ## Versione 1.15.2 · aggiornamento app installata
 
 Le due descrizioni su due righe erano già presenti nel repository. Questa versione corregge l'aggiornamento dell'app installata: attivazione del nuovo service worker ricarica una volta le finestre sul Riepilogo con URL versionato; le altre sezioni restano aperte. Registrazione con updateViaCache none e controllo esplicito del worker; navigazioni con cache HTTP no-store, cache offline mantenuta. Nessuna cancellazione IndexedDB, token, sottoscrizioni push o dati sanitari. Pulsanti, CSS, immagini e testi della 1.15.1 identici.
+
+## Versione 1.15.3 · ordine e assunzione
+
+Prima riga dei pulsanti: PrEP a sinistra, Rapporto a destra. Tolta la scorciatoia di registrazione dal riquadro del promemoria, lasciando countdown, giorno/ora e informazioni dello schema. Conservati i comandi per l'avvio/riavvio quando non c'è un promemoria attivo. Nessuna modifica a superfici, immagini, dati o notifiche.

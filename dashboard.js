@@ -1,7 +1,7 @@
 // Presentation only: the existing delegated handlers consume these unchanged actions.
 export const DASHBOARD_ACTIONS=[
- ['sex','rapporto','Rapporto','Registra rapporto','heart'],
  ['manual','prep','PrEP','Registra assunzione','capsule'],
+ ['sex','rapporto','Rapporto','Registra rapporto','heart'],
  ['analysis','analysis','Appuntamento Analisi','Registra appuntamento','syringe'],
  ['visit','visit','Appuntamento Visita','Registra appuntamento','stethoscope'],
  ['screening','screening','Analisi','Registra esiti analisi','flask'],

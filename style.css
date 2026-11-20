@@ -218,3 +218,12 @@ dialog::backdrop{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(5px);ba
 
 /* Vaccini e routine: campi fluidi anche su iPhone. */
 .routine-field{margin:12px 0;padding:12px;border:1px solid #8885;border-radius:14px;min-width:0}.routine-field legend{font-weight:600;padding:0 5px}.routine-values{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px}.routine-values label{min-width:0}.routine-values input,.routine-field>input{width:100%;min-width:0;box-sizing:border-box}.routine-reference{grid-column:1/-1}.routine-group,.routine-result{padding:12px 0;border-bottom:1px solid #8884}.routine-group>summary,.routine-result>summary,.vaccine-catalog>summary{cursor:pointer;font-weight:600;overflow-wrap:anywhere}.routine-tests>p{padding:8px}.vaccine-booster{display:flex;gap:12px;align-items:center}.vaccine-booster input{width:auto}.vaccine-catalog small{display:block;margin-top:5px}.vaccine-catalog a{color:inherit;text-decoration:underline;overflow-wrap:anywhere}body[data-view="vaccines"] .card{margin-top:18px}.routine-result p{overflow-wrap:anywhere}
+
+/* Status shields retain the original artwork; variants change hue only. */
+body[data-view=home] .status-card .shield-orb{border:0;background:none;box-shadow:none;border-radius:0;overflow:visible}
+.shield-orb img{width:100%;height:100%;object-fit:contain;display:block}
+.shield-orb.yellow img{filter:hue-rotate(-75deg)}
+.shield-orb.red img{filter:hue-rotate(-125deg)}
+.status-card.red>.card-label{background:#dc354b}
+.next-card.cycle-complete:not(.dose-due)>.card-label{background:var(--green)}
+@media(max-width:650px){body[data-view=home] .status-card>p{display:block}}
