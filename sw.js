@@ -1,5 +1,5 @@
-const CACHE='diario-prep-1.10.0';
-const ASSETS=['./','./index.html','./style.css?v=1.10','./app.js?v=1.10','./engine.js?v=1.10','./icon.svg','./icon-192.png','./manifest.webmanifest'];
+const CACHE='diario-prep-1.11.0';
+const ASSETS=['./','./index.html','./style.css?v=1.11','./app.js?v=1.11','./engine.js?v=1.11','./icon.svg','./icon-192.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(async c=>{await c.addAll(ASSETS);await self.skipWaiting();}));});
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('diario-prep-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==location.origin)return;event.respondWith(fetch(event.request).then(response=>{if(response.ok){const clone=response.clone();caches.open(CACHE).then(c=>c.put(event.request,clone));}return response;}).catch(()=>caches.match(event.request).then(r=>r||(event.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));});
@@ -8,10 +8,15 @@ async function localDiscreet(fallback){
  if(typeof indexedDB==='undefined')return fallback!==false;
  return new Promise(resolve=>{let db;const r=indexedDB.open('diario-prep-v1');r.onerror=()=>resolve(fallback!==false);r.onsuccess=()=>{db=r.result;if(!db.objectStoreNames.contains('state')){db.close();resolve(fallback!==false);return}const q=db.transaction('state','readonly').objectStore('state').get('diary');q.onsuccess=()=>{resolve(q.result?.settings?.discreet??(fallback!==false));db.close()};q.onerror=()=>{db.close();resolve(fallback!==false)}}});
 }
+async function rememberActivation(token){
+ if(typeof indexedDB==='undefined')return;
+ await new Promise(resolve=>{const r=indexedDB.open('diario-prep-v1');r.onerror=()=>resolve();r.onsuccess=()=>{const db=r.result;try{if(!db.objectStoreNames.contains('state')){db.close();resolve();return}const tx=db.transaction('state','readwrite');tx.objectStore('state').put({token},'push');tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();resolve()};tx.onabort=()=>{db.close();resolve()};}catch{db.close();resolve()}}});
+}
 self.addEventListener('push',event=>{let p={};try{p=event.data.json()}catch{}
  event.waitUntil((async()=>{
  if(p.kind==='activation'){
   let ok=false;try{const r=await fetch('https://tzgiywfhrxjdfgrhfwyb.supabase.co/functions/v1/reminders',{method:'POST',headers:{'Content-Type':'application/json',apikey:PUBLIC_KEY,Authorization:'Bearer '+PUBLIC_KEY,'x-device-token':p.token},body:JSON.stringify({action:'confirm',proof:p.proof})});ok=r.ok;}catch{}
+  if(ok)await rememberActivation(p.token);
   await self.registration.showNotification('Il tuo promemoria',{body:ok?'Notifiche attivate.':'Attivazione da verificare. Apri il diario.',tag:'activation',data:{url:self.registration.scope}});
   for(const client of await clients.matchAll({type:'window',includeUncontrolled:true}))client.postMessage({type:'push-activation',ok});
   return;

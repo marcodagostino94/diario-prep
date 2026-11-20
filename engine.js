@@ -46,7 +46,7 @@ export function validateBackup(value){
   if(e.type==='boxClose'){if(typeof e.boxId!=='string')throw Error('Scatola non valida.');return {...base,boxId:e.boxId};}
   if(e.type==='dose'){if(![1,2].includes(e.count)||typeof e.start!=='boolean'||e.start&&e.count!==2)throw Error('Dose non valida nel backup.');return {...base,count:e.count,start:e.start};}
   if(e.type==='sex')return {...base,notes:text(e.notes)};
-  if(e.type==='scheme'){if(!['daily','demand'].includes(e.mode))throw Error('Schema non valido.');return {...base,mode:e.mode};}
+  if(e.type==='scheme'){if(!['daily','demand'].includes(e.mode))throw Error('Schema non valido.');return {...base,mode:e.mode,...(e.initial===true?{initial:true}:{})};}
   if(e.type==='anomaly')return {...base,message:text(e.message),source:text(e.source,200)};
   if(!['analysis','visit','screening'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
   if(e.category==='screening'&&e.at>now+60000)throw Error('Data degli esiti non valida.');
@@ -86,7 +86,7 @@ export function historyTimeline(data,now=Date.now()){
   events.push({id:'coverage-'+starts[i].id,type:'coverage',at,pending:at>now});
  }
  events.push(...futureDoses(a));
- return events.sort((a,b)=>a.at-b.at||(a.type==='coverage'?-1:1));
+ return events.sort(compareEvents);
 }
 export function reminderPlan(a,settings,now=Date.now()){
  const out=[];
@@ -119,4 +119,12 @@ export function stockReminderPlan(data,now=Date.now()){
  for(const threshold of [10,5])if(b.remaining<=threshold)out.push({key:`stock-${b.box.id}-${threshold}`,at:now+5000});
  if(b.remaining>0)out.push({key:'expire-'+b.box.id+'-'+b.expiresAt,at:Math.max(now+5000,b.expiresAt)});
  return out;
+}
+
+export function compareEvents(a,b){const rank={scheme:0,box:1,dose:2,sex:3,health:4,boxClose:5,coverage:6,planned:7,anomaly:8};return a.at-b.at||(rank[a.type]??9)-(rank[b.type]??9)||String(a.id||'').localeCompare(String(b.id||''));}
+export function initialConfiguration(mode,dose,box,schemeId){
+ if(!['daily','demand'].includes(mode)||dose?.type!=='dose'||!Number.isFinite(dose.at))throw Error('Configurazione non valida.');
+ if(box&&(box.at>dose.at||!Number.isFinite(box.at)))throw Error('L’apertura della scatola deve precedere o coincidere con la dose.');
+ if(box&&(box.initialCount||30)<dose.count)throw Error('La scorta iniziale è inferiore alle compresse registrate.');
+ return [{id:schemeId,type:'scheme',at:Math.min(dose.at,box?.at??dose.at),mode,initial:true},...(box?[box]:[]),dose].sort(compareEvents);
 }

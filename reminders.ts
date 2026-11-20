@@ -36,7 +36,7 @@ Deno.serve(async req=>{
  const newToken=crypto.randomUUID()+crypto.randomUUID(),proof=crypto.randomUUID()+crypto.randomUUID();
  const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';
  const {error}=await db.rpc('prep_begin_enrollment',{p_token:await digest(newToken),p_proof:await digest(proof),p_ip:await digest(ip+(Deno.env.get('CRON_SECRET')||'')),p_subscription:s});
- if(error)return response({error:'Activation temporarily limited'},429);
+ if(error){if(error.message?.includes('Enrollment rate limit')){const {data:wait}=await db.rpc('prep_enrollment_retry_after',{p_ip:await digest(ip+(Deno.env.get('CRON_SECRET')||''))});return response({error:'Activation temporarily limited',retryAfterSeconds:Number(wait)||3600},429);}return response({error:'Activation storage unavailable'},503);}
  webpush.setVapidDetails('https://marcodagostino94.github.io/diario-prep/',Deno.env.get('VAPID_PUBLIC_KEY')!,Deno.env.get('VAPID_PRIVATE_KEY')!);
  await webpush.sendNotification(s,JSON.stringify({kind:'activation',token:newToken,proof}),{TTL:600,urgency:'high'});
  return response({token:newToken,pending:true});
