@@ -11,7 +11,7 @@ test('never started is red; initial wait turns green at two hours without needin
  assert.equal(state([dose(0,true)],1.99).state,'waiting');
  assert.equal(state([dose(0,true)],2).state,'protected');
  assert.equal(state([dose(0,true)],23.99).optional,true);
- assert.equal(state([dose(0,true)],24).state,'inactive');
+ assert.equal(state([dose(0,true)],24).state,'due');
 });
 test('completed course remains green until exactly 24h after last dose, even days later is inactive',()=>{
  const e=[dose(0,true),sex(3),dose(24),dose(48)];
@@ -32,4 +32,14 @@ test('early sex overrides blue; new sex after maintenance extends required doses
  const e=[dose(0,true),sex(3),dose(24),sex(30),dose(48)];
  assert.equal(state(e,49).completed,false);
  assert.equal(state(e,72).state,'due');
+});
+
+test('no-sex optional continuation turns yellow for the existing one-hour window, then red',()=>{
+ const e=[dose(0,true)];
+ for(const h of [24,24.5,25]){
+  const s=state(e,h);assert.equal(s.color,'yellow');assert.equal(s.title,'È il momento della PrEP');assert.equal(s.optional,true);assert.equal(s.due,true);
+ }
+ const expired=state(e,25.001);assert.equal(expired.state,'inactive');assert.equal(expired.reminderAt,null);
+ assert.equal(state([...e,dose(24.5)],24.5).state,'protected');
+ assert.equal(state([...e,dose(24.5)],48.5).color,'yellow');
 });

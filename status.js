@@ -1,6 +1,6 @@
 // Presentation policy: 24h is a conservative UI boundary, not a biological cutoff.
 export function homeState(a, now=Date.now()) {
- const inactive=!a.start || (a.mode!=='daily'&&!a.issues.length&&(!a.lastSex||a.remaining===0)&&now>=a.last.at+86400000);
+ const inactive=!a.start || (a.mode!=='daily'&&!a.issues.length&&((!a.lastSex&&now>a.last.at+90000000)||(!!a.lastSex&&a.remaining===0&&now>=a.last.at+86400000)));
  const review=a.issues.length>0;
  const reminderAt=review?a.scheduledNext:inactive?null:a.next||a.continuationAt;
  const optional=!review&&!a.next&&!!reminderAt;
