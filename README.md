@@ -49,3 +49,7 @@ Le anomalie vengono riconciliate con le registrazioni originali al salvataggio e
 Promemoria facoltativo on demand: dopo una dose reale, se non esistono già dosi richieste e lo schema non presenta anomalie, viene programmato un solo avviso a +24 ore dall’assunzione. Anche il ciclo completato può avere questo avviso. Nessuna nuova registrazione significa nessun rinnovo per i giorni successivi; nessuna ripetizione automatica dell’avviso facoltativo. Le dosi post-rapporto e lo schema quotidiano mantengono i propri piani ancorati. Il promemoria facoltativo non entra nello Storico come dose necessaria. La scadenza a 24 ore è un criterio dell’interfaccia, non una prescrizione di riavvio o di dose doppia.
 
 Home: accesso agli stessi moduli di esiti, appuntamento analisi e appuntamento visita presenti in Salute. Zoom applicativo disabilitato con viewport fisso, touch-action, prevenzione dei gesti multi-touch, doppio clic e scorciatoie zoom. I tocchi singoli ripetuti dei selettori restano attivi; scorrimento verticale consentito.
+
+## Versione 1.6
+
+Rifinitura visiva in stile Apple: barra inferiore flottante con vetro satinato, selettori a pillola, pulsanti arrotondati, superfici con riflessi e bordi sottili, finestre traslucide. Palette semantica, dati e logica dei promemoria invariati. Blur limitato a navigazione, finestre e toast, con ripiego opaco e rispetto delle preferenze di movimento/trasparenza ridotti. Layout verificato in chiaro e scuro.
