@@ -109,3 +109,11 @@ Catalogo vaccini: Polio/Poliomielite esplicita e separata dal combinato dTpa-IPV
 ## Versione 1.14 · pulsanti Riepilogo
 
 Sei pulsanti HTML indipendenti, testi e piccole icone SVG, superfici glass in CSS, illustrazioni originali ritagliate dal riferimento approvato (nessuna nuova illustrazione generata). Ordine fisso a due colonne: Rapporto/PrEP, Appuntamento Analisi/Appuntamento Visita, Analisi/Flacone. Azioni delegate originali sex/manual/analysis/visit/screening/box invariate. CSS confinato al Riepilogo, risorse disponibili offline, focus tastiera e preferenze movimento/trasparenza rispettati. Su iPhone le card hanno proporzioni più alte per mantenere i testi leggibili: il Riepilogo può scorrere verticalmente sui display piccoli. Dati, moduli, database e notifiche invariati. Verificati sintassi, 61 test e presenza delle risorse; anteprima browser locale bloccata dall'ambiente, quindi non verificata visivamente su desktop/iPhone.
+
+## Versione 1.15 · rifinitura pulsanti
+
+Corretta la vecchia regola che fissava il body del Riepilogo: contenuto ora disposto nel flusso, con spazio inferiore misurato sulla barra flottante reale e altezza delle tre righe adattata allo spazio disponibile. Nei viewport molto bassi rimane lo scorrimento per non sacrificare leggibilità né nascondere pulsanti. Moduli, dati e notifiche invariati. Il padding inline del Riepilogo viene rimosso passando alle altre sezioni.
+
+Card chiare/scure secondo il tema già attivo dell'app, con palette, riflessi, aloni e descrizioni dedicati. Ripulite le sei illustrazioni tramite separazione dello sfondo e trasparenza, sostituendo le maschere manuali difettose della 1.14; mantenuti soggetti, colori e impostazione del riferimento. Tutti gli oggetti rientrano nelle card con margine. Cache offline aggiornata.
+
+Verifica: test logici di fitting su viewport 375×812, 390×844, 430×932, finestra corta 320×568, invariabilità del fitting con scroll, regressioni e backup esistenti; controllo dei canali alpha e dei ritagli su sfondo trasparente. L'anteprima locale disponibile è una vecchia versione e l'ambiente impedisce di avviare il nuovo server; non è stata verificata visivamente questa versione nel browser Safari reale.

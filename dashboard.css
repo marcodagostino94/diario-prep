@@ -6,23 +6,23 @@ body[data-view=home] .dashboard-actions{
 body[data-view=home] .dashboard-action{
  --ink:#e30042;--halo:255,91,158;position:relative;isolation:isolate;display:block;
  width:100%;min-width:0;aspect-ratio:737/307;min-height:150px;padding:0;overflow:hidden;
- border:1px solid rgba(255,255,255,.95);border-radius:34px;
+ border:1px solid var(--dash-edge,rgba(255,255,255,.8));border-radius:34px;
  text-align:left;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
- background:linear-gradient(130deg,rgba(255,255,255,.97),rgba(255,255,255,.64));
+ background:linear-gradient(130deg,var(--dash-top,rgba(255,255,255,.94)),var(--dash-bottom,rgba(249,250,255,.77)));
  -webkit-backdrop-filter:blur(18px) saturate(115%);backdrop-filter:blur(18px) saturate(115%);
- box-shadow:inset 0 2px 3px rgba(255,255,255,.95),inset 0 -1px 2px rgba(255,255,255,.9),0 12px 28px rgba(61,65,99,.12),0 2px 5px rgba(61,65,99,.035);
+ box-shadow:inset 0 1px 2px var(--dash-shine,rgba(255,255,255,.95)),0 8px 22px var(--dash-shadow,rgba(61,65,99,.12));
  transition:transform .16s ease,box-shadow .16s ease;
  container-type:inline-size;
 }
-body[data-view=home] .dashboard-action::before{content:'';position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(ellipse at 86% 65%,rgba(var(--halo),.33),rgba(var(--halo),.12) 35%,transparent 67%)}
-body[data-view=home] .dashboard-action::after{content:'';position:absolute;inset:2px;pointer-events:none;border:1px solid rgba(255,255,255,.5);border-radius:inherit;box-shadow:inset 0 1px 7px rgba(255,255,255,.7)}
+body[data-view=home] .dashboard-action::before{content:'';position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(ellipse at 86% 65%,rgba(var(--halo),var(--dash-glow,.23)),rgba(var(--halo),.06) 35%,transparent 67%)}
+body[data-view=home] .dashboard-action::after{content:'';position:absolute;inset:2px;pointer-events:none;border:1px solid var(--dash-inner,rgba(255,255,255,.4));border-radius:inherit;box-shadow:inset 0 1px 7px var(--dash-shine,rgba(255,255,255,.6))}
 body[data-view=home] .dashboard-prep{--ink:#00a34c;--halo:26,238,165}
 body[data-view=home] .dashboard-analysis{--ink:#006bff;--halo:44,150,255}
 body[data-view=home] .dashboard-visit{--ink:#f52a80;--halo:255,95,183}
 body[data-view=home] .dashboard-screening{--ink:#6800dc;--halo:173,100,255}
 body[data-view=home] .dashboard-bottle{--ink:#dc9e00;--halo:255,211,58}
 body[data-view=home] .dashboard-title{position:absolute;z-index:2;left:6%;top:17%;max-width:82%;color:var(--ink);font-size:clamp(17px,5.5cqw,34px);font-weight:750;letter-spacing:-.045em;line-height:1.05;pointer-events:none}
-body[data-view=home] .dashboard-caption{position:absolute;z-index:2;left:6%;right:3%;bottom:17%;display:flex;align-items:center;gap:8px;color:#626672;font-size:clamp(10px,2.55cqw,16px);font-weight:500;letter-spacing:-.035em;line-height:1.15;pointer-events:none}
+body[data-view=home] .dashboard-caption{position:absolute;z-index:2;left:6%;right:3%;bottom:17%;display:flex;align-items:center;gap:8px;color:var(--dash-caption,#626672);font-size:clamp(10px,2.55cqw,16px);font-weight:500;letter-spacing:-.035em;line-height:1.15;pointer-events:none}
 body[data-view=home] .dashboard-caption svg{width:clamp(17px,4.5cqw,28px);height:clamp(17px,4.5cqw,28px);flex-shrink:0;color:var(--ink)}
 body[data-view=home] .dashboard-caption>span{max-width:70%}
 body[data-view=home] .dashboard-art{position:absolute;z-index:1;right:3.8%;top:10%;width:34%;height:80%;object-fit:contain;pointer-events:none;user-select:none;filter:drop-shadow(0 7px 5px rgba(var(--halo),.15))}
@@ -32,27 +32,36 @@ body[data-view=home] .dashboard-analysis .dashboard-art{width:35%;right:3%;heigh
 body[data-view=home] .dashboard-visit .dashboard-art{width:34%;height:90%;top:3%;right:3%}
 body[data-view=home] .dashboard-screening .dashboard-art{width:29%;height:98%;top:1%;right:3%}
 body[data-view=home] .dashboard-bottle .dashboard-art{width:29%;height:93%;top:4%;right:3%}
-body[data-view=home] .dashboard-action:hover{transform:translateY(-2px);box-shadow:inset 0 2px 3px white,0 16px 32px rgba(61,65,99,.17)}
 body[data-view=home] .dashboard-action:active{transform:scale(.975)}
 body[data-view=home] .dashboard-action:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
 @media(max-width:650px){
- /* Keep both columns and enough room for legible text. Small screens may scroll. */
- body[data-view=home]{height:auto;min-height:100dvh;overflow:auto}
+ body[data-view=home]{position:relative;inset:auto;height:auto;min-height:100dvh;overflow:auto;overscroll-behavior:auto}
  body[data-view=home] .shell{height:auto;min-height:100dvh}
- body[data-view=home] main{height:auto;min-height:100dvh}
- body[data-view=home] #content{height:auto;flex:1}
+ body[data-view=home] main{height:auto;min-height:100dvh;padding:calc(env(safe-area-inset-top) + 10px) 12px calc(94px + env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow:visible}
+ body[data-view=home] #content{height:auto;flex:1;min-height:0;gap:8px}
  body[data-view=home] .grid{flex:0 0 auto;min-height:auto}
- body[data-view=home] .dashboard-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:4px 0 10px}
- body[data-view=home] .dashboard-action{aspect-ratio:1.5;min-height:108px;border-radius:23px;box-shadow:inset 0 2px 3px rgba(255,255,255,.95),0 7px 17px rgba(61,65,99,.12)}
- body[data-view=home] .dashboard-title{left:8%;top:14%;font-size:clamp(13px,8cqw,21px);max-width:92%;line-height:1.08}
- body[data-view=home] .dashboard-caption{left:8%;right:6%;bottom:12%;gap:5px;font-size:clamp(9px,5.4cqw,13px);letter-spacing:-.03em;align-items:flex-start}
- body[data-view=home] .dashboard-caption svg{width:14px;height:14px;margin-top:0}
- body[data-view=home] .dashboard-caption>span{max-width:90px}
- body[data-view=home] .dashboard-art{top:30%;height:48%;width:40%;right:3%;opacity:.94}
- body[data-view=home] .dashboard-rapporto .dashboard-art,body[data-view=home] .dashboard-prep .dashboard-art{width:39%;height:52%;top:29%;right:3%}
- body[data-view=home] .dashboard-analysis .dashboard-art,body[data-view=home] .dashboard-visit .dashboard-art{width:37%;height:53%;top:29%;right:0}
- body[data-view=home] .dashboard-screening .dashboard-art,body[data-view=home] .dashboard-bottle .dashboard-art{width:33%;height:65%;top:16%;right:2%}
+ body[data-view=home] .dashboard-actions{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,var(--dashboard-row-height,92px));gap:9px;margin:4px 0 12px;flex:0 0 auto;overflow:visible}
+ body[data-view=home] .dashboard-action{aspect-ratio:auto;height:100%;min-height:0;border-radius:20px;box-shadow:inset 0 1px 2px var(--dash-shine,rgba(255,255,255,.95)),0 5px 12px var(--dash-shadow,rgba(61,65,99,.1))}
+ body[data-view=home] .dashboard-title{left:8%;top:12%;font-size:clamp(13px,8cqw,19px);max-width:92%;line-height:1.08}
+ body[data-view=home] .dashboard-caption{left:8%;right:7%;bottom:12%;gap:5px;font-size:clamp(9px,5.4cqw,11px);letter-spacing:-.02em;align-items:flex-start}
+ body[data-view=home] .dashboard-caption svg{width:13px;height:13px;margin-top:0}
+ body[data-view=home] .dashboard-caption>span{max-width:60%;line-height:1.12}
+ body[data-view=home] .dashboard-actions .dashboard-art{width:34%;height:55%;top:32%;right:4%;opacity:1;object-fit:contain}
+ body[data-view=home] .dashboard-rapporto .dashboard-art,body[data-view=home] .dashboard-prep .dashboard-art{width:37%;height:53%;top:32%;right:5%}
+ body[data-view=home] .dashboard-analysis .dashboard-art,body[data-view=home] .dashboard-visit .dashboard-art{width:33%;height:51%;top:34%;right:3%}
+ body[data-view=home] .dashboard-screening .dashboard-art,body[data-view=home] .dashboard-bottle .dashboard-art{width:30%;height:65%;top:19%;right:5%}
 }
+:root[data-theme=dark] .dashboard-actions{--dash-solid:#252730;--dash-top:rgba(39,41,49,.96);--dash-bottom:rgba(24,26,33,.92);--dash-edge:rgba(255,255,255,.16);--dash-inner:rgba(255,255,255,.035);--dash-shine:rgba(255,255,255,.08);--dash-shadow:rgba(0,0,0,.27);--dash-caption:#c6cad4;--dash-glow:.14}
+:root[data-theme=dark] body[data-view=home] .dashboard-rapporto{--ink:#ff5e8c}
+:root[data-theme=dark] body[data-view=home] .dashboard-prep{--ink:#57dda4}
+:root[data-theme=dark] body[data-view=home] .dashboard-analysis{--ink:#70b3ff}
+:root[data-theme=dark] body[data-view=home] .dashboard-visit{--ink:#ff79ba}
+:root[data-theme=dark] body[data-view=home] .dashboard-screening{--ink:#c39cff}
+:root[data-theme=dark] body[data-view=home] .dashboard-bottle{--ink:#f7cc62}
 @media(prefers-reduced-motion:reduce){body[data-view=home] .dashboard-action{transition:none;transform:none}}
-@media(prefers-reduced-transparency:reduce){body[data-view=home] .dashboard-action{background:#fafaff;-webkit-backdrop-filter:none;backdrop-filter:none}}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){body[data-view=home] .dashboard-action{background:#fafaff}}
+@media(prefers-reduced-transparency:reduce){body[data-view=home] .dashboard-action{background:var(--dash-solid,#fafaff);-webkit-backdrop-filter:none;backdrop-filter:none}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){body[data-view=home] .dashboard-action{background:var(--dash-solid,#fafaff)}}
+
+/* The full silhouettes keep a transparent gutter on every side, also at desktop sizes. */
+@media(min-width:651px){body[data-view=home] .dashboard-actions .dashboard-art{height:76%;top:12%;right:5%;object-fit:contain}}
+@media(hover:hover){body[data-view=home] .dashboard-action:hover{box-shadow:inset 0 1px 2px var(--dash-shine,white),0 10px 24px var(--dash-shadow,rgba(61,65,99,.16))}}
