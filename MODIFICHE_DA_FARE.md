@@ -114,3 +114,10 @@ Comportamento richiesto dall'utente, da implementare coerentemente con il suo sc
 - Dose non registrata oltre 2 ore: giallo/verifica, senza raccomandazioni automatiche di recupero.
 - Tema automatico: chiaro 07–19, scuro 19–07; scelta manuale disponibile.
 - Notifiche senza codice: verifica automatica tramite push cifrata, quote e token personali, attivazioni preesistenti preservate.
+
+## Richieste aggiuntive · implementazione 1.12
+
+- [x] Appuntamenti visite e analisi: promemoria il giorno prima e un'ora prima.
+- [x] Salute → VACCINI: catalogo con fonti ufficiali, dosi datate e numerazione progressiva correggibile, indicazione richiamo.
+- [x] Esiti analisi → Routine sotto Altri esami: campi principali dei referti, unità e riferimento, esami personalizzati, storico.
+- Face ID escluso su richiesta dell'utente.

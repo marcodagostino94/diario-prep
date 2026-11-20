@@ -1,3 +1,4 @@
+import {normalizeRoutine,VACCINES} from './health.js?v=1.12';
 export const SCREENING_GROUPS=[
  ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C'],['hbv','Epatite B']]],
  ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),
@@ -40,7 +41,7 @@ export function validateBackup(value){
  const ids=new Set(),now=Date.now();
  const text=(s,max=10000)=>typeof s==='string'?s.slice(0,max):'';
  const events=value.events.map(e=>{
-  if(!e||!['dose','sex','health','scheme','anomaly','box','boxClose'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||(e.type!=='health'&&e.at>now+60000)||e.at>Date.UTC(2100,0,1))throw Error('Il backup contiene eventi non validi.');
+  if(!e||!['dose','sex','health','scheme','anomaly','box','boxClose'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(e.type==='health'&&e.category==='vaccine'?1900:2000,0,1)||(e.type!=='health'&&e.at>now+60000)||e.at>Date.UTC(2100,0,1))throw Error('Il backup contiene eventi non validi.');
   ids.add(e.id);const base={id:e.id,type:e.type,at:e.at};
   if(e.type==='box')return {...base,...(Number.isInteger(e.initialCount)&&e.initialCount>=1&&e.initialCount<=30?{initialCount:e.initialCount}:{})};
   if(e.type==='boxClose'){if(typeof e.boxId!=='string')throw Error('Scatola non valida.');return {...base,boxId:e.boxId};}
@@ -48,9 +49,10 @@ export function validateBackup(value){
   if(e.type==='sex')return {...base,notes:text(e.notes)};
   if(e.type==='scheme'){if(!['daily','demand'].includes(e.mode))throw Error('Schema non valido.');return {...base,mode:e.mode,...(e.initial===true?{initial:true}:{})};}
   if(e.type==='anomaly')return {...base,message:text(e.message),source:text(e.source,200)};
-  if(!['analysis','visit','screening'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
-  if(e.category==='screening'&&e.at>now+60000)throw Error('Data degli esiti non valida.');
-  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening),labDetails:normalizeLabDetails(e.labDetails)}:{})};
+  if(!['analysis','visit','screening','vaccine'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
+  if(['screening','vaccine'].includes(e.category)&&e.at>now+60000)throw Error('Data degli esiti non valida.');
+  if(e.category==='vaccine'){if(!VACCINES.some(v=>v[0]===e.vaccineKey)||!Number.isInteger(e.doseNumber)||e.doseNumber<1||e.doseNumber>999)throw Error('Dose vaccinale non valida.');return {...base,category:'vaccine',title:text(e.title,200),vaccineKey:e.vaccineKey,vaccineName:text(e.vaccineName,120),doseNumber:e.doseNumber,booster:e.booster===true,notes:text(e.notes)};}
+  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening),labDetails:normalizeLabDetails(e.labDetails),...(Array.isArray(e.routine)?{routine:normalizeRoutine(e.routine)}:{})}:{})};
  });
  const s=value.settings||{};
  return {events,settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30,theme:['auto','dark','light'].includes(s.theme)?s.theme:'auto',historyView:s.historyView==='calendar'?'calendar':'list'}};
