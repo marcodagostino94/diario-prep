@@ -31,3 +31,13 @@ test('routine backup keeps textual urine results, numeric strings, units and lab
  assert.deepEqual(validateBackup({format:'diario-prep',version:2,events:[e]}).events[0].routine,routine);
  assert.deepEqual(normalizeRoutine(null),[]);
 });
+
+import {VACCINES,normalizePastDiseases} from './health.js';
+test('polio standalone, combined polio and covid are separately selectable',()=>{
+ for(const key of ['polio','dtpa-ipv','covid'])assert.ok(VACCINES.some(v=>v[0]===key));
+});
+test('reported past diseases survive backup, unknown remains distinct from no, invalid years are cleared',()=>{
+ const pastDiseases=normalizePastDiseases({measles:{state:'yes',year:'1998',notes:'infanzia'},varicella:{state:'no'},rubella:{state:'yes',year:'9999'}});
+ assert.equal(pastDiseases.measles.year,'1998');assert.equal(pastDiseases.varicella.state,'no');assert.equal(pastDiseases.mumps.state,'unknown');assert.equal(pastDiseases.rubella.year,'');
+ assert.deepEqual(validateBackup({format:'diario-prep',version:2,events:[],pastDiseases}).pastDiseases,pastDiseases);
+});

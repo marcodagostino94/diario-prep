@@ -1,4 +1,4 @@
-import {normalizeRoutine,VACCINES} from './health.js?v=1.12';
+import {normalizeRoutine,VACCINES,normalizePastDiseases} from './health.js?v=1.13';
 export const SCREENING_GROUPS=[
  ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C'],['hbv','Epatite B']]],
  ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),
@@ -55,7 +55,7 @@ export function validateBackup(value){
   return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening),labDetails:normalizeLabDetails(e.labDetails),...(Array.isArray(e.routine)?{routine:normalizeRoutine(e.routine)}:{})}:{})};
  });
  const s=value.settings||{};
- return {events,settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30,theme:['auto','dark','light'].includes(s.theme)?s.theme:'auto',historyView:s.historyView==='calendar'?'calendar':'list'}};
+ return {events,...(value.pastDiseases?{pastDiseases:normalizePastDiseases(value.pastDiseases)}:{}),settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30,theme:['auto','dark','light'].includes(s.theme)?s.theme:'auto',historyView:s.historyView==='calendar'?'calendar':'list'}};
 }
 // Re-evaluate the source records, including closed cycles and earlier scheme periods.
 // A new cycle alone cannot hide a genuine historical issue; corrected records can resolve it.
