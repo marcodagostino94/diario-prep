@@ -42,7 +42,7 @@ export function validateBackup(value){
  const events=value.events.map(e=>{
   if(!e||!['dose','sex','health','scheme','anomaly','box','boxClose'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||(e.type!=='health'&&e.at>now+60000)||e.at>Date.UTC(2100,0,1))throw Error('Il backup contiene eventi non validi.');
   ids.add(e.id);const base={id:e.id,type:e.type,at:e.at};
-  if(e.type==='box')return base;
+  if(e.type==='box')return {...base,...(Number.isInteger(e.initialCount)&&e.initialCount>=1&&e.initialCount<=30?{initialCount:e.initialCount}:{})};
   if(e.type==='boxClose'){if(typeof e.boxId!=='string')throw Error('Scatola non valida.');return {...base,boxId:e.boxId};}
   if(e.type==='dose'){if(![1,2].includes(e.count)||typeof e.start!=='boolean'||e.start&&e.count!==2)throw Error('Dose non valida nel backup.');return {...base,count:e.count,start:e.start};}
   if(e.type==='sex')return {...base,notes:text(e.notes)};
@@ -92,7 +92,7 @@ export function reminderPlan(a,settings,now=Date.now()){
  const out=[];
  if(a.kind==='waiting'&&a.coverageAt>now)out.push({key:'start-'+a.coverageAt,at:a.coverageAt});
  // Optional continuation is a single reminder after a real dose, never a rolling plan.
- if(!a.next){if(a.continuationAt&&a.continuationAt>=now)out.push({key:'continue-'+a.last.id+'-'+a.continuationAt,at:a.continuationAt});return out;}
+ if(!a.next){if(settings.early&&a.continuationAt-2*HOUR>now)out.push({key:'early-'+a.continuationAt,at:a.continuationAt-2*HOUR});if(a.continuationAt&&a.continuationAt>=now)out.push({key:'continue-'+a.last.id+'-'+a.continuationAt,at:a.continuationAt});return out;}
  const base=a.next;
  if(base+HOUR<now)out.push({key:'overdue-'+base,at:now+60000});
  if(settings.early&&base-2*HOUR>now)out.push({key:'early-'+base,at:base-2*HOUR});
@@ -111,7 +111,7 @@ export function boxStatus(data,now=Date.now()){
  const boxes=data.events.filter(e=>e.type==='box'&&e.at<=now).sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id));const box=boxes.at(-1);
  if(!box||data.events.some(e=>e.type==='boxClose'&&e.boxId===box.id&&e.at<=now))return null;
  const doses=data.events.filter(e=>e.type==='dose'&&e.at>=box.at&&e.at<=now).sort((a,b)=>a.at-b.at);
- const used=doses.reduce((n,d)=>n+d.count,0),remaining=Math.max(0,30-used),expiresAt=box.at+90*DAY;
+ const used=doses.reduce((n,d)=>n+d.count,0),remaining=Math.max(0,(box.initialCount||30)-used),expiresAt=box.at+90*DAY;
  return {box,used,remaining,expiresAt,expired:now>=expiresAt};
 }
 export function stockReminderPlan(data,now=Date.now()){
