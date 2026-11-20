@@ -227,3 +227,13 @@ body[data-view=home] .status-card .shield-orb{border:0;background:none;box-shado
 .status-card.red>.card-label{background:#dc354b}
 .next-card.cycle-complete:not(.dose-due)>.card-label{background:var(--green)}
 @media(max-width:650px){body[data-view=home] .status-card>p{display:block}}
+
+/* Actual post-sex doses only; the pair remains through the completed-cycle period. */
+.next-card.has-pill-tracker{position:relative}
+.next-card.has-pill-tracker>.countdown,.next-card.has-pill-tracker>.next-title,.next-card.has-pill-tracker>.tiny{padding-right:106px}
+.post-sex-pills{position:absolute;right:16px;top:50%;display:flex;gap:9px;transform:translateY(-20%);pointer-events:none}
+.post-sex-pill{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--field);color:var(--green)}
+.post-sex-pill>svg{width:24px;height:24px}
+.post-sex-pill.is-taken{color:var(--muted)}
+.post-sex-pill>.taken-cross{position:absolute;inset:5px;width:26px;height:26px;fill:none;stroke:#f04455;stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 1px var(--card))}
+@media(max-width:650px){.post-sex-pills{right:12px;gap:7px}.post-sex-pill{width:33px;height:33px}.post-sex-pill>svg{width:21px;height:21px}.post-sex-pill>.taken-cross{inset:4px;width:24px;height:24px}.next-card.has-pill-tracker>.countdown,.next-card.has-pill-tracker>.next-title,.next-card.has-pill-tracker>.tiny{padding-right:85px}}

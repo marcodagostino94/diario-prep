@@ -14,8 +14,8 @@ test('confirmed activation persists its token even if foreground registration is
 test('worker upgrade refreshes installed home windows and preserves other pages and local data',async()=>{
  const handlers={},navigated=[],removed=[];
  const windows=[{url:'https://example.test/diario/#home',navigate:async u=>navigated.push(u)},{url:'https://example.test/diario/#health',navigate:async u=>navigated.push(u)},{url:'https://other.test/diario/#home',navigate:async u=>navigated.push(u)}];
- const ctx={URL,Promise,caches:{keys:async()=>['diario-prep-1.15.1','diario-prep-1.16.2','unrelated'],delete:async k=>removed.push(k)},self:{addEventListener:(k,fn)=>handlers[k]=fn,registration:{scope:'https://example.test/diario/'},clients:{claim:async()=>{}}},clients:{matchAll:async()=>windows}};
+ const ctx={URL,Promise,caches:{keys:async()=>['diario-prep-1.15.1','diario-prep-1.16.3','unrelated'],delete:async k=>removed.push(k)},self:{addEventListener:(k,fn)=>handlers[k]=fn,registration:{scope:'https://example.test/diario/'},clients:{claim:async()=>{}}},clients:{matchAll:async()=>windows}};
  vm.runInNewContext(source,ctx);let activation;handlers.activate({waitUntil:p=>activation=p});await activation;
  assert.deepEqual(removed,['diario-prep-1.15.1']);assert.equal(navigated.length,1);
- assert.equal(new URL(navigated[0]).hash,'#home');assert.equal(new URL(navigated[0]).searchParams.get('app_update'),'diario-prep-1.16.2');
+ assert.equal(new URL(navigated[0]).hash,'#home');assert.equal(new URL(navigated[0]).searchParams.get('app_update'),'diario-prep-1.16.3');
 });

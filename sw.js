@@ -1,5 +1,5 @@
-const CACHE='diario-prep-1.16.2';
-const ASSETS=['./status.js?v=1.16.2','./assets/status/green.png','./assets/status/blue.png','./','./index.html','./style.css?v=1.16.2','./app.js?v=1.16.2','./engine.js?v=1.16.2','./health.js?v=1.16.2','./dashboard.js?v=1.16.2','./dashboard.css?v=1.16.2','./assets/dashboard/rapporto.png','./assets/dashboard/prep.png','./assets/dashboard/analysis.png','./assets/dashboard/visit.png','./assets/dashboard/screening.png','./assets/dashboard/bottle.png','./icon.svg','./icon-192.png','./manifest.webmanifest'];
+const CACHE='diario-prep-1.16.3';
+const ASSETS=['./status.js?v=1.16.3','./assets/status/green.png','./assets/status/blue.png','./','./index.html','./style.css?v=1.16.3','./app.js?v=1.16.3','./engine.js?v=1.16.3','./health.js?v=1.16.3','./dashboard.js?v=1.16.3','./dashboard.css?v=1.16.3','./assets/dashboard/rapporto.png','./assets/dashboard/prep.png','./assets/dashboard/analysis.png','./assets/dashboard/visit.png','./assets/dashboard/screening.png','./assets/dashboard/bottle.png','./icon.svg','./icon-192.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(async c=>{await c.addAll(ASSETS);await self.skipWaiting();}));});
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
  const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('diario-prep-')&&k!==CACHE).map(k=>caches.delete(k)));

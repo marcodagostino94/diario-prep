@@ -1,4 +1,4 @@
-import {CONTINUATION_LIMIT} from './engine.js?v=1.16.2';
+import {CONTINUATION_LIMIT} from './engine.js?v=1.16.3';
 // Expiry is an app precaution; required missing doses remain review cases.
 export function homeState(a, now=Date.now()) {
  const inactive=!a.start || (a.mode!=='daily'&&!a.issues.length&&(!a.lastSex||a.remaining===0)&&now>=a.last.at+CONTINUATION_LIMIT);
