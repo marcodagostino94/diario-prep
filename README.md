@@ -105,3 +105,7 @@ Appuntamenti visite e analisi: due avvisi, a -24 ore (stessa ora del giorno prec
 ## Versione 1.13
 
 Catalogo vaccini: Polio/Poliomielite esplicita e separata dal combinato dTpa-IPV, aggiunto COVID-19 con fonte ministeriale. Le registrazioni precedenti conservano nomi e dosi senza conversioni. Vaccini → Malattie già avute: morbillo, varicella, parotite, rosolia e COVID-19, con Sì / No / Non so, anno facoltativo e note. Informazioni riferite, senza certificazione di immunità né eliminazione di vaccini o dosi. Dati solo locali, compresi nel backup; reset e ripristino dei backup precedenti gestiti senza mantenere annotazioni residue. Nessuna modifica aggiuntiva al servizio notifiche.
+
+## Versione 1.14 · pulsanti Riepilogo
+
+Sei pulsanti HTML indipendenti, testi e piccole icone SVG, superfici glass in CSS, illustrazioni originali ritagliate dal riferimento approvato (nessuna nuova illustrazione generata). Ordine fisso a due colonne: Rapporto/PrEP, Appuntamento Analisi/Appuntamento Visita, Analisi/Flacone. Azioni delegate originali sex/manual/analysis/visit/screening/box invariate. CSS confinato al Riepilogo, risorse disponibili offline, focus tastiera e preferenze movimento/trasparenza rispettati. Su iPhone le card hanno proporzioni più alte per mantenere i testi leggibili: il Riepilogo può scorrere verticalmente sui display piccoli. Dati, moduli, database e notifiche invariati. Verificati sintassi, 61 test e presenza delle risorse; anteprima browser locale bloccata dall'ambiente, quindi non verificata visivamente su desktop/iPhone.
