@@ -117,3 +117,7 @@ Corretta la vecchia regola che fissava il body del Riepilogo: contenuto ora disp
 Card chiare/scure secondo il tema già attivo dell'app, con palette, riflessi, aloni e descrizioni dedicati. Ripulite le sei illustrazioni tramite separazione dello sfondo e trasparenza, sostituendo le maschere manuali difettose della 1.14; mantenuti soggetti, colori e impostazione del riferimento. Tutti gli oggetti rientrano nelle card con margine. Cache offline aggiornata.
 
 Verifica: test logici di fitting su viewport 375×812, 390×844, 430×932, finestra corta 320×568, invariabilità del fitting con scroll, regressioni e backup esistenti; controllo dei canali alpha e dei ritagli su sfondo trasparente. L'anteprima locale disponibile è una vecchia versione e l'ambiente impedisce di avviare il nuovo server; non è stata verificata visivamente questa versione nel browser Safari reale.
+
+## Versione 1.15.2 · aggiornamento app installata
+
+Le due descrizioni su due righe erano già presenti nel repository. Questa versione corregge l'aggiornamento dell'app installata: attivazione del nuovo service worker ricarica una volta le finestre sul Riepilogo con URL versionato; le altre sezioni restano aperte. Registrazione con updateViaCache none e controllo esplicito del worker; navigazioni con cache HTTP no-store, cache offline mantenuta. Nessuna cancellazione IndexedDB, token, sottoscrizioni push o dati sanitari. Pulsanti, CSS, immagini e testi della 1.15.1 identici.

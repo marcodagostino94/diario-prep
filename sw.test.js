@@ -10,3 +10,12 @@ test('discreet notification strips identifying text even from stale payload',asy
 test('local discreet setting overrides previously queued non-discreet push',async()=>{const w=worker(true,true);await w.push({discreet:false,title:'Diario PrEP',body:'Assumi PrEP'});assert.equal(w.notifications[0][0],'Il tuo promemoria');assert.equal(w.notifications[0][1].icon,undefined);assert.ok(!JSON.stringify(w.notifications).includes('PrEP'))});
 
 test('confirmed activation persists its token even if foreground registration is interrupted',async()=>{const w=worker(true,undefined,true);await w.push({kind:'activation',token:'owned-token',proof:'owned-proof'});assert.equal(w.saved.length,1);assert.equal(w.saved[0].key,'push');assert.equal(w.saved[0].value.token,'owned-token');assert.ok(!JSON.stringify(w.saved).includes('owned-proof'));const failed=worker(false,undefined,true);await failed.push({kind:'activation',token:'t',proof:'p'});assert.equal(failed.saved.length,0)});
+
+test('worker upgrade refreshes installed home windows and preserves other pages and local data',async()=>{
+ const handlers={},navigated=[],removed=[];
+ const windows=[{url:'https://example.test/diario/#home',navigate:async u=>navigated.push(u)},{url:'https://example.test/diario/#health',navigate:async u=>navigated.push(u)},{url:'https://other.test/diario/#home',navigate:async u=>navigated.push(u)}];
+ const ctx={URL,Promise,caches:{keys:async()=>['diario-prep-1.15.1','diario-prep-1.15.2','unrelated'],delete:async k=>removed.push(k)},self:{addEventListener:(k,fn)=>handlers[k]=fn,registration:{scope:'https://example.test/diario/'},clients:{claim:async()=>{}}},clients:{matchAll:async()=>windows}};
+ vm.runInNewContext(source,ctx);let activation;handlers.activate({waitUntil:p=>activation=p});await activation;
+ assert.deepEqual(removed,['diario-prep-1.15.1']);assert.equal(navigated.length,1);
+ assert.equal(new URL(navigated[0]).hash,'#home');assert.equal(new URL(navigated[0]).searchParams.get('app_update'),'diario-prep-1.15.2');
+});

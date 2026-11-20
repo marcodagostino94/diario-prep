@@ -1,4 +1,4 @@
-import {normalizeRoutine,VACCINES,normalizePastDiseases} from './health.js?v=1.15.1';
+import {normalizeRoutine,VACCINES,normalizePastDiseases} from './health.js?v=1.15.2';
 export const SCREENING_GROUPS=[
  ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C'],['hbv','Epatite B']]],
  ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),

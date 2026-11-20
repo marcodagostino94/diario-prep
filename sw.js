@@ -1,8 +1,21 @@
-const CACHE='diario-prep-1.15.1';
-const ASSETS=['./','./index.html','./style.css?v=1.15.1','./app.js?v=1.15.1','./engine.js?v=1.15.1','./health.js?v=1.15.1','./dashboard.js?v=1.15.1','./dashboard.css?v=1.15.1','./assets/dashboard/rapporto.png','./assets/dashboard/prep.png','./assets/dashboard/analysis.png','./assets/dashboard/visit.png','./assets/dashboard/screening.png','./assets/dashboard/bottle.png','./icon.svg','./icon-192.png','./manifest.webmanifest'];
+const CACHE='diario-prep-1.15.2';
+const ASSETS=['./','./index.html','./style.css?v=1.15.2','./app.js?v=1.15.2','./engine.js?v=1.15.2','./health.js?v=1.15.2','./dashboard.js?v=1.15.2','./dashboard.css?v=1.15.2','./assets/dashboard/rapporto.png','./assets/dashboard/prep.png','./assets/dashboard/analysis.png','./assets/dashboard/visit.png','./assets/dashboard/screening.png','./assets/dashboard/bottle.png','./icon.svg','./icon-192.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(async c=>{await c.addAll(ASSETS);await self.skipWaiting();}));});
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('diario-prep-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==location.origin)return;event.respondWith(fetch(event.request).then(response=>{if(response.ok){const clone=response.clone();caches.open(CACHE).then(c=>c.put(event.request,clone));}return response;}).catch(()=>caches.match(event.request).then(r=>r||(event.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));});
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+ const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('diario-prep-')&&k!==CACHE).map(k=>caches.delete(k)));
+ await self.clients.claim();
+ // One navigation per worker activation upgrades installed iOS windows too.
+ // Saved IndexedDB data and push subscriptions are never removed.
+ const scope=new URL(self.registration.scope);
+ for(const client of await clients.matchAll({type:'window',includeUncontrolled:true})){
+  if(!client.url||typeof client.navigate!=='function')continue;
+  const url=new URL(client.url);
+  if(url.origin!==scope.origin||!url.pathname.startsWith(scope.pathname)||!['','#home'].includes(url.hash))continue;
+  url.searchParams.set('app_update',CACHE);
+  await client.navigate(url.href).catch(()=>{});
+ }
+})()));
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==location.origin)return;event.respondWith(fetch(event.request,{cache:event.request.mode==='navigate'?'no-store':'no-cache'}).then(response=>{if(response.ok){const clone=response.clone();caches.open(CACHE).then(c=>c.put(event.request,clone));}return response;}).catch(()=>caches.match(event.request).then(r=>r||(event.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));});
 const PUBLIC_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Z2l5d2ZocnhqZGZncmhmd3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMjA1MjQsImV4cCI6MjExMDY5NjUyNH0.RG9ZiOEwsnlQQwGb15POC3IWYVC6dJcs4MhLMH2ouik';
 async function localDiscreet(fallback){
  if(typeof indexedDB==='undefined')return fallback!==false;
