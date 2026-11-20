@@ -1,6 +1,6 @@
-import {dashboardButtons,fitDashboard} from './dashboard.js?v=1.15';
-import {PAST_DISEASES,normalizePastDiseases,VACCINES,VACCINE_SOURCES,ROUTINE_GROUPS,normalizeRoutine,nextVaccineDose,appointmentReminderPlan} from './health.js?v=1.15';
-import {initialConfiguration,compareEvents,analyze,validateBackup,reminderPlan,historyTimeline,captureIssues,themeAt,SCREENING_GROUPS,RESULT_STATES,normalizeScreening,normalizeLabDetails,creatinineStatus,boxStatus,stockReminderPlan,HOUR,DAY} from './engine.js?v=1.15';
+import {dashboardButtons,fitDashboard} from './dashboard.js?v=1.15.1';
+import {PAST_DISEASES,normalizePastDiseases,VACCINES,VACCINE_SOURCES,ROUTINE_GROUPS,normalizeRoutine,nextVaccineDose,appointmentReminderPlan} from './health.js?v=1.15.1';
+import {initialConfiguration,compareEvents,analyze,validateBackup,reminderPlan,historyTimeline,captureIssues,themeAt,SCREENING_GROUPS,RESULT_STATES,normalizeScreening,normalizeLabDetails,creatinineStatus,boxStatus,stockReminderPlan,HOUR,DAY} from './engine.js?v=1.15.1';
 const $=s=>document.querySelector(s), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let lastRenderedKind,setupMode='demand';
 let db,data,view=location.hash.slice(1)||'home',period=0,filter='all',syncStatus='Non attive',busy=false;
