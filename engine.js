@@ -92,7 +92,7 @@ export function reminderPlan(a,settings,now=Date.now()){
  const out=[];
  if(a.kind==='waiting'&&a.coverageAt>now)out.push({key:'start-'+a.coverageAt,at:a.coverageAt});
  // Optional continuation is a single reminder after a real dose, never a rolling plan.
- if(!a.next){if(settings.early&&a.continuationAt-2*HOUR>now)out.push({key:'early-'+a.continuationAt,at:a.continuationAt-2*HOUR});if(a.continuationAt&&a.continuationAt>=now)out.push({key:'continue-'+a.last.id+'-'+a.continuationAt,at:a.continuationAt});return out;}
+ if(!a.next){if(settings.early&&a.continuationAt-2*HOUR>now)out.push({key:'early-'+a.continuationAt,at:a.continuationAt-2*HOUR});if(a.continuationAt)for(let i=0;i<=(settings.repeat?4:0);i++){const at=a.continuationAt+i*15*60000;if(at>now)out.push({key:'continue-'+a.last.id+'-'+a.continuationAt+(i?'-'+i:''),at});}return out;}
  const base=a.next;
  if(base+HOUR<now)out.push({key:'overdue-'+base,at:now+60000});
  if(settings.early&&base-2*HOUR>now)out.push({key:'early-'+base,at:base-2*HOUR});
@@ -103,7 +103,7 @@ export function reminderPlan(a,settings,now=Date.now()){
 
 export function normalizeLabDetails(value={}){
  const out={};for(const key of ['tpha','rpr','hbsag','antiHbsState','hbcState'])out[key]=RESULT_STATES.includes(value?.[key])?value[key]:'untested';
- for(const key of ['igg','igm','antiHbs','hbc','creatinine']){const v=typeof value?.[key]==='string'?value[key]:typeof value?.[key]==='number'?String(value[key]):'';out[key]=/^(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(v)?v.slice(0,40):'';}
+ for(const key of ['iggIgm','igg','igm','antiHbs','hbc','creatinine']){const v=typeof value?.[key]==='string'?value[key]:typeof value?.[key]==='number'?String(value[key]):'';out[key]=/^(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(v)?v.slice(0,40):'';}
  out.syphilisNotes=typeof value?.syphilisNotes==='string'?value.syphilisNotes.slice(0,10000):'';return out;
 }
 export function creatinineStatus(value){if(!String(value).trim())return 'empty';const n=Number(String(value).replace(',','.'));return Number.isFinite(n)&&n>=0.70&&n<=1.20?'normal':'outside';}

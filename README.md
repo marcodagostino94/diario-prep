@@ -75,3 +75,13 @@ Riferimento per il flacone Mylan: foglio illustrativo EMA in italiano, usare ent
 Configurazione: pillola SVG nel benvenuto, scelta quotidiano/on demand, scatola nuova o già aperta prima della prima dose. Per una scatola già aperta si inseriscono data di apertura e compresse disponibili prima della dose; il conteggio sottrae le registrazioni successive, anche doppie. Quantità iniziale conservata nei backup e nelle modifiche di apertura.
 
 Corretto il promemoria a -2 ore anche per la continuazione facoltativa on demand, senza aggiungere dosi necessarie nello Storico o prolungare il piano dopo una dose non registrata. Nessun recupero retroattivo per avvisi già trascorsi. Il service worker legge la preferenza discreta dal diario locale prima di mostrare il push e sostituisce titolo e testo identificativi anche in payload vecchi. Nome e icona del mittente iOS restano quelli dell’app installata e non possono essere nascosti dal contenuto del singolo avviso. Non è stata cambiata l’identità installata per evitare rischi ai dati locali esistenti.
+
+## Versione 1.10
+
+Icona installabile allineata alla pillola del benvenuto: fondo rosa chiaro, pillola rossa, senza cerchio esterno. SVG e PNG 192/512; identità, scope e archivio invariati. iOS può conservare in cache l’icona dell’installazione esistente.
+
+IgG/IgM è un unico valore; i vecchi valori separati restano conservati e visibili come precedenti, senza sommarli né reinterpretarli. In Salute il titolo dell’esame apre una scheda di sola lettura con soli esiti analizzati, valori compilati e note. La matita e il pulsante Modifica aprono l’editor.
+
+Sincronizzazione: messaggi distinti per rete, piano rifiutato e attivazione non autorizzata; due tentativi limitati durante la conferma push riducono la corsa tra registrazione e conferma. Nei log del servizio sono state osservate risposte 401 durante attivazioni, non errori 400 del piano scatola. Nessun dato esistente viene azzerato o ricreato per risolvere un errore notifiche.
+
+Ripetizioni: anche la continuazione facoltativa segue la preferenza Ripeti, con massimo quattro avvisi a +15/+30/+45/+60 minuti dal primo, entro l’ora di margine; nessun nuovo giorno di avvisi senza una dose reale. Il test transazionale server controlla i cinque record e la cancellazione del vecchio piano, con rollback dei dati sintetici. La consegna effettiva su iPhone resta soggetta a connessione, autorizzazioni e impostazioni Focus, e non è stata misurata con un’attesa reale di 60 minuti.

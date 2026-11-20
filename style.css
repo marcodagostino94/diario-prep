@@ -213,3 +213,5 @@ dialog::backdrop{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(5px);ba
 .event-sex{--event-color:#d0459c;--event-tint:#d0459c1b}.event-coverage,.event-planned{--event-color:var(--sky)}.event-anomaly{--event-color:var(--warning)}.event-scheme{--event-color:var(--muted)}
 
 .onboard .brand-icon svg{width:38px;height:38px;display:block;margin:auto}
+
+.event-open{padding:0;background:none;border:0;text-align:left;color:inherit;font:inherit;font-weight:700;min-height:32px}.read-notes{white-space:pre-wrap;overflow-wrap:anywhere}.test-row.normal strong{color:var(--green)}.test-row.outside strong{color:var(--warning)}
