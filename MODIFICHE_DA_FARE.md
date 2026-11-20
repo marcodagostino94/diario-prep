@@ -1,6 +1,6 @@
-# Modifiche da realizzare successivamente
+# Modifiche realizzate · versione 1.3
 
-Richieste raccolte il 20 novembre 2026. Questo documento è una lista di lavoro: non modifica l'app né attiva nuovi comportamenti.
+Richieste raccolte il 20 novembre 2026. Elenco originale conservato come riferimento. Implementazione del 20 novembre 2026: quantità selezionabile, anomalie persistenti, Storico e calendario, Salute, note private, schemi, layout iPhone, attivazione push senza codice e temi. Dettagli e limiti aggiornati nel README.
 
 ## Registrazione assunzioni
 
@@ -71,7 +71,7 @@ Comportamento richiesto dall'utente, da implementare coerentemente con il suo sc
 
 ## Punto già segnalato e rinviato
 
-- **Notifiche discrete:** l'utente ha confermato che le notifiche arrivano, ma il risultato non è discreto nonostante l'interruttore attivo. Verificare testo, titolo, icona e nome dell'app mostrati da iPhone. Nessuna correzione è stata ancora richiesta per questo intervento di sola raccolta.
+- **Notifiche discrete:** l'utente ha confermato che le notifiche arrivano, ma il risultato non è discreto nonostante l'interruttore attivo. Verificare testo, titolo, icona e nome dell'app mostrati da iPhone. Nella versione 1.3 titolo e testo sono generici e l’icona personalizzata viene omessa; il nome e l’icona dell’app mostrati da iOS restano sotto il controllo del sistema.
 
 ## Ottimizzazione iPhone e larghezza delle schermate
 
@@ -105,3 +105,12 @@ Comportamento richiesto dall'utente, da implementare coerentemente con il suo sc
 - Cambiare automaticamente tema in base all'orario: **chiaro di giorno/mattina, scuro la sera/notte**, usando l'ora locale del dispositivo.
 - Definire successivamente gli orari esatti del passaggio; la richiesta riguarda l'orario, non soltanto il tema di sistema dell'iPhone.
 - Assicurare contrasto e leggibilità in entrambi i temi, mantenendo riconoscibili i colori degli stati e delle linee dello Storico.
+
+## Decisioni di implementazione 1.3
+
+- Storico: giorni ed eventi in ordine decrescente, futuri in alto. Calendario apre il dettaglio del giorno.
+- Esiti: testo con esame, valore, unità e riferimento; nessun allegato.
+- Cambio schema: decorrenza immediata, stesso orario del ciclo, passato conservato.
+- Dose non registrata oltre 2 ore: giallo/verifica, senza raccomandazioni automatiche di recupero.
+- Tema automatico: chiaro 07–19, scuro 19–07; scelta manuale disponibile.
+- Notifiche senza codice: verifica automatica tramite push cifrata, quote e token personali, attivazioni preesistenti preservate.

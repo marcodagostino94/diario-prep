@@ -23,7 +23,7 @@ Deno.serve(async req=>{
  for(const r of due||[]){try{
  const title=r.discreet?'Il tuo promemoria':'Diario PrEP';
  const body=r.discreet?'Apri il diario per controllare il tuo promemoria.':r.key.startsWith('start-')?'Controlla lo stato del ciclo e le prossime dosi.':'È il momento di controllare la prossima assunzione.';
- await webpush.sendNotification(r.subscription,JSON.stringify({title,body,tag:r.key}),{TTL:900,urgency:'high'});
+ await webpush.sendNotification(r.subscription,JSON.stringify({title,body,tag:r.key,discreet:r.discreet}),{TTL:900,urgency:'high'});
  const {error:err}=await db.from('prep_reminders').update({sent_at:new Date().toISOString()}).eq('device_id',r.device_id).eq('key',r.key);if(err)throw err;sent++;
  }catch(e){if(e.statusCode===404||e.statusCode===410)await db.from('prep_devices').delete().eq('id',r.device_id);}}
  // Purge old scheduling metadata, retaining sent keys briefly for idempotency.
@@ -31,11 +31,21 @@ Deno.serve(async req=>{
  return response({sent});
  }
  if(b.action==='register'){
- const code=Deno.env.get('PAIRING_CODE');if(!code||typeof b.code!=='string'||!await equal(b.code,code))return response({error:'Unauthorized'},401);
  const s=b.subscription;const url=new URL(s?.endpoint||'');
- if(url.protocol!=='https:'||!(url.hostname.endsWith('.push.apple.com')||url.hostname==='fcm.googleapis.com'||url.hostname.endsWith('.notify.windows.com')||url.hostname.endsWith('.push.services.mozilla.com'))||!s?.keys?.p256dh||!s?.keys?.auth)return response({error:'Invalid subscription'},400);
- const {count}=await db.from('prep_devices').select('id',{head:true,count:'exact'});if((count||0)>=10)return response({error:'Device limit'},429);
- const newToken=crypto.randomUUID()+crypto.randomUUID();const {error}=await db.from('prep_devices').insert({token_hash:await digest(newToken),subscription:s});if(error)throw error;return response({token:newToken});
+ if(url.protocol!=='https:'||!(url.hostname.endsWith('.push.apple.com')||url.hostname==='fcm.googleapis.com'||url.hostname.endsWith('.notify.windows.com')||url.hostname.endsWith('.push.services.mozilla.com'))||url.port||url.username||url.password||url.search||typeof s?.keys?.p256dh!=='string'||s.keys.p256dh.length>200||typeof s?.keys?.auth!=='string'||s.keys.auth.length>100)return response({error:'Invalid subscription'},400);
+ const newToken=crypto.randomUUID()+crypto.randomUUID(),proof=crypto.randomUUID()+crypto.randomUUID();
+ const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown';
+ const {error}=await db.rpc('prep_begin_enrollment',{p_token:await digest(newToken),p_proof:await digest(proof),p_ip:await digest(ip+(Deno.env.get('CRON_SECRET')||'')),p_subscription:s});
+ if(error)return response({error:'Activation temporarily limited'},429);
+ webpush.setVapidDetails('https://marcodagostino94.github.io/diario-prep/',Deno.env.get('VAPID_PUBLIC_KEY')!,Deno.env.get('VAPID_PRIVATE_KEY')!);
+ await webpush.sendNotification(s,JSON.stringify({kind:'activation',token:newToken,proof}),{TTL:600,urgency:'high'});
+ return response({token:newToken,pending:true});
+ }
+ if(b.action==='confirm'){
+ if(token.length!==72||typeof b.proof!=='string'||b.proof.length!==72)return response({error:'Unauthorized'},401);
+ const {error}=await db.rpc('prep_confirm_enrollment',{p_token:await digest(token),p_proof:await digest(b.proof)});
+ if(error)return response({error:'Activation expired'},401);
+ return response({ok:true});
  }
  if(!token||token.length<64)return response({error:'Unauthorized'},401);
  const {data:device,error}=await db.from('prep_devices').select('id').eq('token_hash',await digest(token)).maybeSingle();if(error||!device)return response({error:'Unauthorized'},401);

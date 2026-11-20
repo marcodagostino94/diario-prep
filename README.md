@@ -1,6 +1,6 @@
 # Diario PrEP
 
-PWA in italiano ispirata alle schermate My PrEP fornite: configurazione, Riepilogo, Storico, Statistiche, Impostazioni. Il diario è conservato in IndexedDB sul dispositivo. Nessun dato sanitario viene incluso nel codice o nelle richieste al backend notifiche.
+PWA in italiano ispirata alle schermate My PrEP fornite: configurazione, Riepilogo, Storico, Statistiche, Salute, Impostazioni. Il diario è conservato in IndexedDB sul dispositivo. Nessun dato sanitario viene incluso nel codice o nelle richieste al backend notifiche.
 
 ## Avvio e verifiche
 
@@ -10,9 +10,9 @@ Pubblicazione: GitHub Pages, ramo main, cartella root. Aggiungere alla schermata
 
 ## Notifiche
 
-Schema e funzione sono in `schema.sql`, `reminders.ts`, `config.toml` e `schedule.sql`. Il servizio riceve soltanto sottoscrizione push, token dispositivo hashato, preferenza testo discreto, orari e identificativi degli avvisi. Dati protetti da RLS senza policy pubbliche: accesso solo tramite Edge Function con autorizzazione per dispositivo. La registrazione richiede un codice privato di abbinamento. Nessuna chiave service-role o VAPID privata va nel frontend, nel repository o nei backup.
+Schema e funzione sono in `schema.sql`, `reminders.ts`, `config.toml` e `schedule.sql`. Il servizio riceve soltanto sottoscrizione push, token dispositivo hashato, preferenza testo discreto, orari e identificativi degli avvisi. Dati protetti da RLS senza policy pubbliche: accesso solo tramite Edge Function con autorizzazione per dispositivo. La registrazione senza codice prova il possesso del recapito mediante una push cifrata di attivazione. Applicare anche `notification-migration.sql`: RLS e RPC riservate al servizio, quote atomiche (3 richieste/IP salato/ora, 30 al giorno globali, 10 dispositivi attivi), prova monouso con scadenza 10 minuti. Gli hash tecnici di attivazione vengono eliminati dopo 24 ore. Nessuna chiave service-role o VAPID privata va nel frontend, nel repository o nei backup.
 
-Configurare lato server VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET, PAIRING_CODE, ALLOWED_ORIGINS. SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY sono forniti dal runtime. La funzione usa autenticazione personalizzata; il gateway JWT resta attivo con chiave anon pubblica e autorizzazione privata nel campo x-device-token. Creare `prep_cron_secret` in Vault con valore uguale a CRON_SECRET e `prep_anon_key` con la chiave anon pubblica e applicare schedule.sql una sola volta. Verificare invio e cancellazione su un dispositivo reale.
+Configurare lato server VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET, ALLOWED_ORIGINS. SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY sono forniti dal runtime. La funzione usa autenticazione personalizzata; il gateway JWT resta attivo con chiave anon pubblica e autorizzazione privata nel campo x-device-token. Creare `prep_cron_secret` in Vault con valore uguale a CRON_SECRET e `prep_anon_key` con la chiave anon pubblica e applicare schedule.sql una sola volta. Verificare invio e cancellazione su un dispositivo reale.
 
 L'app accoda le modifiche offline e riprova all'apertura o al ritorno della connessione. Un aggiornamento offline non annulla avvisi già programmati sul server fino alla sincronizzazione. Sono previste quattro ripetizioni ogni 15 minuti; il mancato tocco non registra automaticamente una dose. Il cron controlla ogni minuto: non è una sveglia al secondo. Le push richiedono Internet e risentono delle impostazioni del sistema operativo.
 
@@ -27,3 +27,13 @@ Backup JSON non cifrato: contiene dati personali e va custodito. Il backup non i
 ## Versione 1.2
 
 Attesa iniziale celeste; lo Storico mostra un evento derivato con scudo a +2 ore e le sole dosi pianificate a seguito di rapporti registrati, in ordine cronologico e con linea tratteggiata blu. Questi elementi non vengono salvati come assunzioni e non entrano nei conteggi o nei backup. Senza rapporti registrati non si generano dosi post-rapporto né promemoria di assunzione; rimane l’avviso iniziale a +2 ore. L’app segnala esplicitamente che nessun rapporto registrato non equivale ad assenza di rapporti. Fonte per il caso senza rapporti e senza ulteriori rapporti previsti: UK guide to PrEP, novembre 2025, pagina 19, https://icash.nhs.uk/media/yo0a5oyq/prep-guide-uk-november-2025.pdf .
+
+## Versione 1.3
+
+Cinque sezioni, Salute con appuntamenti/esiti, quantità 1/2 selezionabile e note dei rapporti visibili solo in modifica. Storico dal più recente al più vecchio, giornate raggruppate, vista calendario mensile con simboli e dettaglio del giorno. Tema automatico locale chiaro 07:00–19:00, scuro negli altri orari; scelta manuale disponibile.
+
+Il cambio schema è un evento con decorrenza immediata; conserva il passato e l’ancoraggio del ciclo. Quotidiano: doppia dose iniziale registrata, poi dose ogni 24 ore; rapporti senza effetto sulla programmazione. Proiezione grafica dei prossimi 7 giorni, notifica solo della prossima dose (le dosi successive vengono pianificate alla conferma, mai dedotte dal silenzio). In caso di anomalie il piano normale si sospende e il riquadro propone Inizia ciclo, senza prescrivere un recupero. Le osservazioni restano nello Storico anche dopo un nuovo ciclo. Una correzione non cancella l’osservazione storica.
+
+Backup v2 compatibile in lettura con v1. IndexedDB e identità PWA invariati. Nessuna migrazione del diario verso Supabase. La modalità discreta usa titolo e testo generici e omette l’icona personalizzata dalla notifica; il nome/icona dell’app installata mostrati da iOS dipendono dal sistema.
+
+Riferimento aggiuntivo: BASHH/BHIVA 2025 con chiarimenti settembre 2026, https://bhiva.org/clinical-guideline/PrEP-guidelines/. Le istruzioni personali del centro restano il riferimento per avvio, passaggi e dosi dimenticate.
