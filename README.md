@@ -43,3 +43,9 @@ Riferimento aggiuntivo: BASHH/BHIVA 2025 con chiarimenti settembre 2026, https:/
 Compresse rappresentate da badge circolari rosa/rossi individuali (due badge per due compresse). Storico senza azioni di inserimento duplicate. Salute distingue Nuovi esiti analisi, Appuntamento analisi (siringa) e Appuntamento visita (medico). Gli esiti sono un evento locale distinto con stati espliciti non testato/negativo/positivo per ciascun esame e sede; nessun risultato viene dedotto o interpretato automaticamente. Esiti e note sono inclusi nel backup v2.
 
 Le anomalie vengono riconciliate con le registrazioni originali al salvataggio e all’apertura: gli avvisi risolti da correzioni vengono eliminati anche dai calendari e dai cicli passati. Un nuovo ciclo o cambio schema non nasconde da solo un’anomalia ancora effettiva. Gli appuntamenti e gli esiti precedenti sono conservati.
+
+## Versione 1.5
+
+Promemoria facoltativo on demand: dopo una dose reale, se non esistono già dosi richieste e lo schema non presenta anomalie, viene programmato un solo avviso a +24 ore dall’assunzione. Anche il ciclo completato può avere questo avviso. Nessuna nuova registrazione significa nessun rinnovo per i giorni successivi; nessuna ripetizione automatica dell’avviso facoltativo. Le dosi post-rapporto e lo schema quotidiano mantengono i propri piani ancorati. Il promemoria facoltativo non entra nello Storico come dose necessaria. La scadenza a 24 ore è un criterio dell’interfaccia, non una prescrizione di riavvio o di dose doppia.
+
+Home: accesso agli stessi moduli di esiti, appuntamento analisi e appuntamento visita presenti in Salute. Zoom applicativo disabilitato con viewport fisso, touch-action, prevenzione dei gesti multi-touch, doppio clic e scorciatoie zoom. I tocchi singoli ripetuti dei selettori restano attivi; scorrimento verticale consentito.

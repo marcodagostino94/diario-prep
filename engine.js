@@ -30,8 +30,10 @@ export function analyze(data,now=Date.now()) {
  if((mode==='daily'||lastSex)&&!completed&&now>next+2*HOUR)issues.push('La prossima dose risulta in ritardo o non registrata.');
  for(const e of data.events.filter(e=>e.type==='anomaly'&&e.source?.startsWith(start.id+':')))issues.push(e.message);
  const unique=[...new Set(issues)];
+ const requiredNext=!unique.length&&(mode==='daily'||lastSex&&!completed)?next:null;
+ const continuationAt=mode==='demand'&&!unique.length&&!requiredNext&&now<=last.at+DAY?last.at+DAY:null;
  const kind=unique.length?'review':completed?'complete':now<start.at+2*HOUR?'waiting':mode!=='daily'&&!lastSex&&now>last.at+DAY?'unreported':'active';
- return {kind,mode,remaining,next:!unique.length&&(mode==='daily'||lastSex&&!completed)?next:null,scheduledNext:next,canContinue:now<=last.at+DAY,start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
+ return {kind,mode,remaining,next:requiredNext,continuationAt,scheduledNext:next,canContinue:now<=last.at+DAY,start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
 }
 export function validateBackup(value){
  if(!value||value.format!=='diario-prep'||![1,2].includes(value.version)||!Array.isArray(value.events)||value.events.length>100000)throw Error('File di backup non compatibile.');
@@ -87,7 +89,8 @@ export function historyTimeline(data,now=Date.now()){
 export function reminderPlan(a,settings,now=Date.now()){
  const out=[];
  if(a.kind==='waiting'&&a.coverageAt>now)out.push({key:'start-'+a.coverageAt,at:a.coverageAt});
- if(!a.next)return out;
+ // Optional continuation is a single reminder after a real dose, never a rolling plan.
+ if(!a.next){if(a.continuationAt&&a.continuationAt>=now)out.push({key:'continue-'+a.last.id+'-'+a.continuationAt,at:a.continuationAt});return out;}
  const base=a.next;
  if(base+HOUR<now)out.push({key:'overdue-'+base,at:now+60000});
  if(settings.early&&base-2*HOUR>now)out.push({key:'early-'+base,at:base-2*HOUR});
