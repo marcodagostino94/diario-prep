@@ -53,3 +53,7 @@ Home: accesso agli stessi moduli di esiti, appuntamento analisi e appuntamento v
 ## Versione 1.6
 
 Rifinitura visiva in stile Apple: barra inferiore flottante con vetro satinato, selettori a pillola, pulsanti arrotondati, superfici con riflessi e bordi sottili, finestre traslucide. Palette semantica, dati e logica dei promemoria invariati. Blur limitato a navigazione, finestre e toast, con ripiego opaco e rispetto delle preferenze di movimento/trasparenza ridotti. Layout verificato in chiaro e scuro.
+
+## Versione 1.7
+
+Riepilogo iPhone contenuto nell’altezza della schermata, con griglia compatta a due colonne per le registrazioni, spazi e riquadri adattati all’altezza disponibile. Le altre sezioni mantengono lo scorrimento. Avvisi di schema visibili in forma sintetica con dettaglio completo apribile; nessun avviso clinico eliminato. Verificati stati inattivo, ciclo attivo e schema da verificare, con altezze da 568 a 844 px.
