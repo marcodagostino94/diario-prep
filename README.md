@@ -57,3 +57,15 @@ Rifinitura visiva in stile Apple: barra inferiore flottante con vetro satinato, 
 ## Versione 1.7
 
 Riepilogo iPhone contenuto nell’altezza della schermata, con griglia compatta a due colonne per le registrazioni, spazi e riquadri adattati all’altezza disponibile. Le altre sezioni mantengono lo scorrimento. Avvisi di schema visibili in forma sintetica con dettaglio completo apribile; nessun avviso clinico eliminato. Verificati stati inattivo, ciclo attivo e schema da verificare, con altezze da 568 a 844 px.
+
+## Versione 1.8
+
+Continuazione facoltativa consentita nell’interfaccia fino a un’ora dopo le 24 ore dall’ultima dose; poi Ricomincia PrEP. Non è una prescrizione di recupero: l’avvio resta una registrazione esplicita secondo le indicazioni del centro. Stato e prossima dose gialli quando è il momento, verde dopo la conferma di uno schema regolare. Sei azioni in colonna con colori distinti riutilizzati nello Storico. Reset annulla i piani, rimuove l’attivazione push, azzera il diario e riapre la configurazione.
+
+Esami del sangue ordinati: HIV, sifilide con dettagli TPHA/RPR/IgG/IgM/note, epatite C, epatite B con HBsAg/anti-HBs/HBc Totale, creatinina. Il confronto cromatico 0,70–1,20 mg/dL segue l’intervallo richiesto dall’utente e non interpreta la funzionalità renale. Altri test chiusi in More; aprire/chiudere non altera esiti già registrati. Dettagli strutturati inclusi nel backup.
+
+Scatole locali: apertura e dismissione nello Storico; 30 compresse meno le quantità effettivamente registrate dall’apertura. Aprire una nuova scatola sostituisce la precedente ai fini del conteggio e annulla i suoi avvisi futuri. Le soglie a 10 e 5 includono il salto di soglia causato da una dose doppia e sono idempotenti per scatola.
+
+Server: applicare nell’ordine schema.sql, notification-migration.sql e stock-notifications.sql, quindi pubblicare reminders.ts. La nuova funzione mantiene il piano e i token precedenti. Solo chiavi opache e orari sono trasmessi: nessun esito o nota. expiry a +90 giorni, ricorrenza giornaliera gestita dal cron anche senza aprire l’app, fino a nuova scatola, dismissione, fine scorta o reset sincronizzati. La preferenza discreta resta rispettata. Il test transazionale stock-notification-check.sql verifica ricorrenza e cancellazione su righe sintetiche, annullando le modifiche alla fine. Gli esiti di invio dipendono da Internet e permessi del dispositivo.
+
+Riferimento per il flacone Mylan: foglio illustrativo EMA in italiano, usare entro 90 giorni dalla prima apertura: https://www.ema.europa.eu/it/documents/product-information/emtricitabine-tenofovir-disoproxil-mylan-epar-product-information_it.pdf.

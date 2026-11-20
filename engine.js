@@ -1,7 +1,7 @@
 export const SCREENING_GROUPS=[
- ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C']]],
+ ['Esami del sangue',[['hiv','HIV'],['syphilis','Sifilide'],['hcv','Epatite C'],['hbv','Epatite B']]],
  ...[['gonorrhea','Gonorrea'],['chlamydia','Clamidia'],['mycoplasma','Mycoplasma genitalium'],['lgv','LGV']].map(([key,label])=>[label,[['throat','Gola'],['anal','Anale'],['genital','Genitale']].map(([site,name])=>[key+'-'+site,name])]),
- ['Altri test',[['hav','Epatite A'],['hbv','Epatite B'],['hsv1','Herpes HSV-1'],['hsv2','Herpes HSV-2'],['trichomonas','Tricomoniasi']]]
+ ['Altri test',[['hav','Epatite A'],['hsv1','Herpes HSV-1'],['hsv2','Herpes HSV-2'],['trichomonas','Tricomoniasi']]]
 ];
 export const RESULT_STATES=['untested','negative','positive'];
 export function normalizeScreening(value={}){const out={};for(const [,tests] of SCREENING_GROUPS)for(const [key] of tests){const state=value?.[key];out[key]=RESULT_STATES.includes(state)?state:'untested';}return out;}
@@ -31,24 +31,26 @@ export function analyze(data,now=Date.now()) {
  for(const e of data.events.filter(e=>e.type==='anomaly'&&e.source?.startsWith(start.id+':')))issues.push(e.message);
  const unique=[...new Set(issues)];
  const requiredNext=!unique.length&&(mode==='daily'||lastSex&&!completed)?next:null;
- const continuationAt=mode==='demand'&&!unique.length&&!requiredNext&&now<=last.at+DAY?last.at+DAY:null;
+ const continuationAt=mode==='demand'&&!unique.length&&!requiredNext&&now<=last.at+DAY+HOUR?last.at+DAY:null;
  const kind=unique.length?'review':completed?'complete':now<start.at+2*HOUR?'waiting':mode!=='daily'&&!lastSex&&now>last.at+DAY?'unreported':'active';
- return {kind,mode,remaining,next:requiredNext,continuationAt,scheduledNext:next,canContinue:now<=last.at+DAY,start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
+ return {kind,mode,remaining,next:requiredNext,continuationAt,scheduledNext:next,canContinue:now<=last.at+DAY+(mode==='demand'&&(!lastSex||completed)?HOUR:0),due:!!(requiredNext||continuationAt)&&now>=(requiredNext||continuationAt),start,last,lastSex,doses:ds,sex,issues:unique,coverageAt:start.at+2*HOUR,noSexRecorded:!lastSex};
 }
 export function validateBackup(value){
  if(!value||value.format!=='diario-prep'||![1,2].includes(value.version)||!Array.isArray(value.events)||value.events.length>100000)throw Error('File di backup non compatibile.');
  const ids=new Set(),now=Date.now();
  const text=(s,max=10000)=>typeof s==='string'?s.slice(0,max):'';
  const events=value.events.map(e=>{
-  if(!e||!['dose','sex','health','scheme','anomaly'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||(e.type!=='health'&&e.at>now+60000)||e.at>Date.UTC(2100,0,1))throw Error('Il backup contiene eventi non validi.');
+  if(!e||!['dose','sex','health','scheme','anomaly','box','boxClose'].includes(e.type)||typeof e.id!=='string'||ids.has(e.id)||!Number.isFinite(e.at)||e.at<Date.UTC(2000,0,1)||(e.type!=='health'&&e.at>now+60000)||e.at>Date.UTC(2100,0,1))throw Error('Il backup contiene eventi non validi.');
   ids.add(e.id);const base={id:e.id,type:e.type,at:e.at};
+  if(e.type==='box')return base;
+  if(e.type==='boxClose'){if(typeof e.boxId!=='string')throw Error('Scatola non valida.');return {...base,boxId:e.boxId};}
   if(e.type==='dose'){if(![1,2].includes(e.count)||typeof e.start!=='boolean'||e.start&&e.count!==2)throw Error('Dose non valida nel backup.');return {...base,count:e.count,start:e.start};}
   if(e.type==='sex')return {...base,notes:text(e.notes)};
   if(e.type==='scheme'){if(!['daily','demand'].includes(e.mode))throw Error('Schema non valido.');return {...base,mode:e.mode};}
   if(e.type==='anomaly')return {...base,message:text(e.message),source:text(e.source,200)};
   if(!['analysis','visit','screening'].includes(e.category)||!text(e.title,200))throw Error('Appuntamento non valido.');
   if(e.category==='screening'&&e.at>now+60000)throw Error('Data degli esiti non valida.');
-  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening)}:{})};
+  return {...base,category:e.category,title:text(e.title,200),results:text(e.results),notes:text(e.notes),...(e.category==='screening'?{screening:normalizeScreening(e.screening),labDetails:normalizeLabDetails(e.labDetails)}:{})};
  });
  const s=value.settings||{};
  return {events,settings:{early:s.early===true,repeat:s.repeat!==false,discreet:s.discreet!==false,stock:Number.isInteger(s.stock)&&s.stock>=0&&s.stock<=10000?s.stock:30,theme:['auto','dark','light'].includes(s.theme)?s.theme:'auto',historyView:s.historyView==='calendar'?'calendar':'list'}};
@@ -96,5 +98,25 @@ export function reminderPlan(a,settings,now=Date.now()){
  if(settings.early&&base-2*HOUR>now)out.push({key:'early-'+base,at:base-2*HOUR});
  // Finite reminders; never infer that a dose was taken from silence.
  for(let i=0;i<=(settings.repeat?4:0);i++){const at=base+i*15*60000;if(at>now)out.push({key:'due-'+base+'-'+i,at});}
+ return out;
+}
+
+export function normalizeLabDetails(value={}){
+ const out={};for(const key of ['tpha','rpr','hbsag','antiHbsState','hbcState'])out[key]=RESULT_STATES.includes(value?.[key])?value[key]:'untested';
+ for(const key of ['igg','igm','antiHbs','hbc','creatinine']){const v=typeof value?.[key]==='string'?value[key]:typeof value?.[key]==='number'?String(value[key]):'';out[key]=/^(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(v)?v.slice(0,40):'';}
+ out.syphilisNotes=typeof value?.syphilisNotes==='string'?value.syphilisNotes.slice(0,10000):'';return out;
+}
+export function creatinineStatus(value){if(!String(value).trim())return 'empty';const n=Number(String(value).replace(',','.'));return Number.isFinite(n)&&n>=0.70&&n<=1.20?'normal':'outside';}
+export function boxStatus(data,now=Date.now()){
+ const boxes=data.events.filter(e=>e.type==='box'&&e.at<=now).sort((a,b)=>a.at-b.at||a.id.localeCompare(b.id));const box=boxes.at(-1);
+ if(!box||data.events.some(e=>e.type==='boxClose'&&e.boxId===box.id&&e.at<=now))return null;
+ const doses=data.events.filter(e=>e.type==='dose'&&e.at>=box.at&&e.at<=now).sort((a,b)=>a.at-b.at);
+ const used=doses.reduce((n,d)=>n+d.count,0),remaining=Math.max(0,30-used),expiresAt=box.at+90*DAY;
+ return {box,used,remaining,expiresAt,expired:now>=expiresAt};
+}
+export function stockReminderPlan(data,now=Date.now()){
+ const b=boxStatus(data,now);if(!b)return [];const out=[];
+ for(const threshold of [10,5])if(b.remaining<=threshold)out.push({key:`stock-${b.box.id}-${threshold}`,at:now+5000});
+ if(b.remaining>0)out.push({key:'expire-'+b.box.id+'-'+b.expiresAt,at:Math.max(now+5000,b.expiresAt)});
  return out;
 }

@@ -22,12 +22,12 @@ Deno.serve(async req=>{
  let sent=0;
  for(const r of due||[]){try{
  const title=r.discreet?'Il tuo promemoria':'Diario PrEP';
- const body=r.discreet?'Apri il diario per controllare il tuo promemoria.':r.key.startsWith('start-')?'Controlla lo stato del ciclo e le prossime dosi.':'È il momento di controllare la prossima assunzione.';
+ const body=r.discreet?'Apri il diario per controllare il tuo promemoria.':r.key.startsWith('expire-')?'Sono trascorsi 90 giorni dall’apertura. Dismetti il flacone e verifica la tua scorta.':r.key.startsWith('stock-')?'Scorta in esaurimento: soglia di '+r.key.split('-').at(-1)+' compresse raggiunta.':r.key.startsWith('start-')?'Controlla lo stato del ciclo e le prossime dosi.':'È il momento di controllare la prossima assunzione.';
  await webpush.sendNotification(r.subscription,JSON.stringify({title,body,tag:r.key,discreet:r.discreet}),{TTL:900,urgency:'high'});
- const {error:err}=await db.from('prep_reminders').update({sent_at:new Date().toISOString()}).eq('device_id',r.device_id).eq('key',r.key);if(err)throw err;sent++;
+ const {error:err}=await db.rpc('prep_finish_reminder',{p_device:r.device_id,p_key:r.key});if(err)throw err;sent++;
  }catch(e){if(e.statusCode===404||e.statusCode===410)await db.from('prep_devices').delete().eq('id',r.device_id);}}
  // Purge old scheduling metadata, retaining sent keys briefly for idempotency.
- await db.from('prep_reminders').delete().lt('due_at',new Date(Date.now()-7*86400000).toISOString());
+ await db.from('prep_reminders').delete().not('key','like','stock-%').lt('due_at',new Date(Date.now()-7*86400000).toISOString());
  return response({sent});
  }
  if(b.action==='register'){
@@ -51,7 +51,7 @@ Deno.serve(async req=>{
  const {data:device,error}=await db.from('prep_devices').select('id').eq('token_hash',await digest(token)).maybeSingle();if(error||!device)return response({error:'Unauthorized'},401);
  if(b.action==='remove'){const {error}=await db.from('prep_devices').delete().eq('id',device.id);if(error)throw error;return response({ok:true});}
  if(b.action==='sync'){
- if(!Array.isArray(b.plan)||b.plan.length>10||b.plan.some((p:any)=>typeof p.key!=='string'||p.key.length>100||!Number.isFinite(p.at)||p.at<Date.now()-60000||p.at>Date.now()+7*86400000)||new Set(b.plan.map((p:any)=>p.key)).size!==b.plan.length)return response({error:'Invalid plan'},400);
+ if(!Array.isArray(b.plan)||b.plan.length>16||b.plan.some((p:any)=>typeof p.key!=='string'||p.key.length>100||!Number.isFinite(p.at)||p.at<Date.now()-60000||p.at>Date.now()+(p.key.startsWith('expire-')?91:7)*86400000)||new Set(b.plan.map((p:any)=>p.key)).size!==b.plan.length)return response({error:'Invalid plan'},400);
  const {error}=await db.rpc('prep_replace_plan',{p_device:device.id,p_plan:b.plan,p_discreet:b.discreet!==false});if(error)throw error;return response({ok:true});
  }
  return response({error:'Unknown action'},400);
